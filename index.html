@@ -114,7 +114,7 @@ button:active:not(:disabled){transform:scale(.97)}
 
 /* ---------- block blast ---------- */
 .block-wrap{position:relative;width:min(100%,460px)}
-.block-board{display:grid;grid-template-columns:repeat(8,1fr);gap:5px;padding:10px;background:#0a0507;border:1px solid var(--line);border-radius:14px;touch-action:none;box-shadow:0 14px 40px rgba(0,0,0,.4),inset 0 0 30px rgba(255,43,74,.03);transition:box-shadow .2s}
+.block-board{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:5px;padding:10px;background:#0a0507;border:1px solid var(--line);border-radius:14px;touch-action:none;box-shadow:0 14px 40px rgba(0,0,0,.4),inset 0 0 30px rgba(255,43,74,.03);transition:box-shadow .2s}
 .block-board.flash{animation:bflash .35s}
 @keyframes bflash{40%{box-shadow:0 0 36px rgba(255,43,74,.45),inset 0 0 30px rgba(255,43,74,.12)}}
 .c1,.pv1{--cc:#ff2b4a;--cc2:#b3122b}
@@ -129,8 +129,6 @@ button:active:not(:disabled){transform:scale(.97)}
 .bcell.will{box-shadow:inset 0 0 0 2px #fff,0 0 14px var(--acc);border-color:#fff;z-index:1}
 .bcell.land{animation:land .28s cubic-bezier(.2,.8,.2,1)}
 @keyframes land{from{transform:scale(.6);filter:brightness(2)}}
-.bcell.clr{animation:clr .5s ease backwards;animation-delay:var(--d,0ms)}
-@keyframes clr{0%{background:#ff4d68;box-shadow:0 0 22px var(--acc);transform:scale(1.15)}100%{background:#ff4d68;transform:scale(.1);opacity:0}}
 .block-tray{width:min(100%,460px);display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:16px;--t:clamp(12px,3.7vw,21px)}
 .slot{display:grid;place-items:center;min-height:calc(var(--t)*5 + 30px);padding:10px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(160deg,var(--panel2),#0a0507);cursor:grab;touch-action:none;-webkit-user-select:none;user-select:none;transition:.18s}
 .slot:hover:not(.used):not(.dragging){border-color:var(--acc-dim);transform:translateY(-3px);box-shadow:0 10px 24px rgba(0,0,0,.35)}
@@ -256,9 +254,101 @@ input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(255,43,74,.22),0 0
 .restart{padding:12px 24px;font-size:1.05rem;white-space:nowrap;animation:rpulse 1.3s ease-in-out infinite}
 .restart[hidden]{display:none}
 @keyframes rpulse{50%{box-shadow:0 0 30px rgba(255,43,74,1),0 0 80px rgba(255,26,60,.6)}}
+
+/* ---------- STATIC boot sequence ---------- */
+#static-intro{
+  position:fixed;inset:0;z-index:9999;display:grid;place-items:center;overflow:hidden;
+  background:#020002;color:var(--ink);isolation:isolate;
+  transition:opacity .65s ease,visibility .65s ease;
+}
+#static-intro::before{
+  content:"";position:absolute;inset:-30%;z-index:-1;
+  background:radial-gradient(ellipse at 50% 48%,rgba(255,20,55,.2),transparent 42%),
+             linear-gradient(115deg,transparent 35%,rgba(255,35,65,.08) 50%,transparent 65%);
+  animation:intro-drift 4s ease-in-out infinite alternate;
+}
+#static-intro::after{
+  content:"";position:absolute;inset:0;pointer-events:none;opacity:.25;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.035) 0 1px,transparent 1px 4px);
+}
+#static-intro.done{opacity:0;visibility:hidden;pointer-events:none}
+.intro-core{width:min(88vw,680px);text-align:center;position:relative;padding:30px 12px}
+.intro-kicker{font:600 .68rem "Orbitron",sans-serif;letter-spacing:.42em;color:#b85a69;opacity:0;animation:intro-rise .55s .15s forwards}
+.intro-logo{
+  position:relative;margin:18px 0 10px;font:800 clamp(3.2rem,12vw,7.5rem)/1 "Orbitron",sans-serif;
+  letter-spacing:.18em;padding-left:.18em;color:#fff0f2;
+  text-shadow:0 0 8px #fff,0 0 24px rgba(255,35,70,.95),0 0 70px rgba(255,15,45,.65);
+  opacity:0;animation:intro-logo .95s .35s cubic-bezier(.16,1,.3,1) forwards,intro-flicker 4s 1.5s infinite;
+}
+.intro-logo::before,.intro-logo::after{content:"STATIC";position:absolute;inset:0;pointer-events:none;opacity:0}
+.intro-logo::before{color:#ff2449;transform:translateX(-5px);clip-path:inset(0 0 55% 0);animation:intro-glitch 2.8s 1.4s infinite}
+.intro-logo::after{color:#fff;transform:translateX(5px);clip-path:inset(55% 0 0 0);animation:intro-glitch 2.8s 1.55s infinite reverse}
+.intro-sub{font:600 .72rem "Orbitron",sans-serif;letter-spacing:.3em;color:#b77b85;opacity:0;animation:intro-rise .6s 1s forwards}
+.intro-rule{height:2px;width:min(300px,65vw);margin:34px auto 12px;background:#301019;overflow:hidden;box-shadow:0 0 18px rgba(255,30,65,.35);opacity:0;animation:intro-rise .4s 1.1s forwards}
+.intro-rule span{display:block;height:100%;width:0;background:linear-gradient(90deg,#8b1028,#ff3154,#fff);box-shadow:0 0 16px #ff3154;animation:intro-load 1.55s 1.25s cubic-bezier(.65,0,.25,1) forwards}
+.intro-loading{font:600 .58rem "Orbitron",sans-serif;letter-spacing:.22em;color:#87404e;opacity:0;animation:intro-rise .4s 1.15s forwards}
+.intro-skip{position:absolute;right:22px;bottom:20px;background:transparent;border:1px solid rgba(255,55,85,.35);border-radius:7px;padding:8px 12px;color:#a76a76;font:600 .62rem "Orbitron",sans-serif;letter-spacing:.12em;cursor:pointer}
+.intro-skip:hover{color:#fff;border-color:var(--acc);box-shadow:0 0 18px rgba(255,43,74,.25)}
+.intro-ring{position:absolute;width:min(72vw,440px);aspect-ratio:1;border:1px solid rgba(255,40,70,.13);border-radius:50%;left:50%;top:50%;transform:translate(-50%,-50%) scale(.7);box-shadow:0 0 60px rgba(255,20,50,.08),inset 0 0 60px rgba(255,20,50,.06);animation:intro-ring 3.5s ease-out infinite}
+.intro-ring.r2{width:min(92vw,560px);animation-delay:.8s;opacity:.5}
+@keyframes intro-rise{to{opacity:1;transform:translateY(0)}}
+@keyframes intro-logo{0%{opacity:0;transform:scale(.72);filter:blur(12px);letter-spacing:.5em}65%{opacity:1;filter:blur(0);text-shadow:0 0 18px #fff,0 0 55px #ff2449}100%{opacity:1;transform:scale(1);letter-spacing:.18em}}
+@keyframes intro-glitch{0%,82%,100%{opacity:0;transform:translateX(0)}84%{opacity:.8;transform:translateX(-7px)}87%{opacity:.5;transform:translateX(5px)}90%{opacity:0}}
+@keyframes intro-flicker{0%,94%,97%,100%{opacity:1}95%{opacity:.82}96%{opacity:.95}}
+@keyframes intro-load{to{width:100%}}
+@keyframes intro-ring{0%{opacity:0;transform:translate(-50%,-50%) scale(.72)}35%{opacity:.8}100%{opacity:0;transform:translate(-50%,-50%) scale(1.25)}}
+@keyframes intro-drift{to{transform:rotate(8deg) scale(1.08)}}
+.block-board{
+  width:100%;
+  aspect-ratio:1 / 1;
+  grid-template-rows:repeat(8,minmax(0,1fr));
+  grid-auto-rows:auto;
+  align-content:stretch;
+}
+.bcell{
+  position:relative;display:block;width:auto;height:auto;min-width:0;min-height:0;
+  aspect-ratio:auto;
+  background:linear-gradient(145deg,#28121a,#190a10);
+  border:1px solid #66303d;
+  box-shadow:inset 0 0 0 1px rgba(255,120,145,.035),inset 0 0 10px rgba(255,35,70,.09);
+}
+.bcell.f{
+  background:linear-gradient(145deg,var(--cc),var(--cc2));
+  border-color:rgba(255,220,225,.62);
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.2),0 0 14px rgba(255,43,74,.6);
+}
+.bcell.clr{z-index:2;overflow:visible}
+.bcell.clr::after{
+  content:"";position:absolute;inset:-16%;border:2px solid rgba(255,145,165,.98);
+  border-radius:9px;background:radial-gradient(circle,rgba(255,65,95,.72),rgba(255,30,65,.18) 48%,transparent 72%);
+  box-shadow:0 0 14px #ff3154,0 0 30px rgba(255,30,65,.8);
+  pointer-events:none;opacity:0;transform:scale(.4);
+  animation:block-burst .62s ease-out both;animation-delay:var(--d,0ms)
+}
+@keyframes block-burst{
+  0%{transform:scale(.4);opacity:0}
+  22%{transform:scale(.85);opacity:1}
+  100%{transform:scale(1.85);opacity:0}
+}
+@media(prefers-reduced-motion:reduce){
+  #static-intro{display:none!important}
+  .bcell.clr::after{animation:none!important;display:none}
+}
+
 </style>
 </head>
 <body>
+<div id="static-intro" aria-label="STATIC loading" role="status">
+  <div class="intro-ring"></div><div class="intro-ring r2"></div>
+  <div class="intro-core">
+    <div class="intro-kicker">PRIVATE NETWORK // EST. STATIC</div>
+    <div class="intro-logo">STATIC</div>
+    <div class="intro-sub">A PLACE OUTSIDE THE NOISE</div>
+    <div class="intro-rule"><span></span></div>
+    <div class="intro-loading">INITIALIZING THE HUB</div>
+  </div>
+  <button class="intro-skip" id="intro-skip" type="button">SKIP INTRO ↗</button>
+</div>
 <div class="bg" aria-hidden="true">
   <div class="orb o1"></div><div class="orb o2"></div><div class="orb o3"></div><div class="orb o4"></div><div class="orb o5"></div>
   <div class="beam b1"></div><div class="beam b2"></div>
@@ -648,7 +738,7 @@ $("mine-diff").addEventListener("click",function(e){
 newMines();
 
 /* ================= Block Blast ================= */
-var BW=8,bb=null,bestB=Number(store.get("static-block-best","0"))||0,drag=null;
+var BW=8,bb=null,bestB=Number(store.get("static-block-best","0"))||0,drag=null,clearTimer=null;
 var bBoard=$("block-board"),bTray=$("block-tray"),bWrap=$("block-wrap"),bCells=[];
 (function(){for(var i=0;i<BW*BW;i++){var d=document.createElement("div");d.className="bcell";bBoard.appendChild(d);bCells.push(d)}})();
 
@@ -686,7 +776,18 @@ function genPieces(){
   return ps;
 }
 function renderBoard(){
-  bCells.forEach(function(el,i){var v=bb.cells[i];el.className="bcell"+(v?" f c"+v:"");el.style.animationDelay=""});
+  /* Keep the 8x8 grid geometrically defined even when its parent section
+     was hidden during initial layout. */
+  bBoard.style.gridTemplateColumns="repeat(8,minmax(0,1fr))";
+  bBoard.style.gridTemplateRows="repeat(8,minmax(0,1fr))";
+  bBoard.style.aspectRatio="1 / 1";
+  bCells.forEach(function(el,i){
+    var v=bb.cells[i];
+    el.className="bcell"+(v?" f c"+v:"");
+    el.style.animationDelay="";
+    el.style.opacity="1";
+    el.style.visibility="visible";
+  });
 }
 function renderTray(){
   bTray.innerHTML="";
@@ -739,7 +840,7 @@ function preview(gx,gy){
   will.forEach(function(k){bCells[k].classList.add("will")});
 }
 function startDrag(e,i,slot){
-  if(!bb||bb.over||drag)return;
+  if(!bb||bb.over||bb.clearing||drag)return;
   var p=bb.pieces[i];if(!p)return;
   e.preventDefault();
   var r0=bCells[0].getBoundingClientRect(),r1=bCells[1].getBoundingClientRect();
@@ -790,46 +891,83 @@ function popup(text,sub,cellIdx){
 }
 var CLEAR_NAMES=["","Line clear!","Double clear!","Triple clear!","Quad clear!","Mega clear!"];
 function place(i,x,y){
+  if(bb.clearing||bb.over)return;
   var p=bb.pieces[i];
   p.c.forEach(function(q){bb.cells[(y+q[1])*BW+x+q[0]]=p.col});
   bb.pieces[i]=null;
-  var cleared={},lines=0,a,b,full;
+
+  /* Find completed rows and columns before changing the board. */
+  var fullRows=[],fullCols=[],a,b,full;
   for(a=0;a<BW;a++){
-    full=true;for(b=0;b<BW;b++)if(!bb.cells[a*BW+b]){full=false;break}
-    if(full){lines++;for(b=0;b<BW;b++)cleared[a*BW+b]=1}
-    full=true;for(b=0;b<BW;b++)if(!bb.cells[b*BW+a]){full=false;break}
-    if(full){lines++;for(b=0;b<BW;b++)cleared[b*BW+a]=1}
+    full=true;
+    for(b=0;b<BW;b++)if(!bb.cells[a*BW+b]){full=false;break}
+    if(full)fullRows.push(a);
+
+    full=true;
+    for(b=0;b<BW;b++)if(!bb.cells[b*BW+a]){full=false;break}
+    if(full)fullCols.push(a);
   }
+
+  var cleared={};
+  fullRows.forEach(function(row){for(var x0=0;x0<BW;x0++)cleared[row*BW+x0]=1});
+  fullCols.forEach(function(col){for(var y0=0;y0<BW;y0++)cleared[y0*BW+col]=1});
   var idx=Object.keys(cleared).map(Number);
+  var lines=fullRows.length+fullCols.length;
   var gain=p.c.length;
-  if(lines){bb.combo++;gain+=Math.round(lines*lines*10*(1+(bb.combo-1)*0.5))}else bb.combo=0;
-  idx.forEach(function(k){bb.cells[k]=0});
-  var perfect=lines>0&&bb.cells.every(function(v){return !v});
+
+  if(lines){bb.combo++;gain+=Math.round(lines*lines*10*(1+(bb.combo-1)*0.5))}
+  else bb.combo=0;
+
+  if(bb.pieces.every(function(v){return !v}))bb.pieces=genPieces();
+
+  var mid=(y+Math.floor(p.h/2))*BW+x+Math.floor(p.w/2);
+  p.c.forEach(function(q){
+    bCells[(y+q[1])*BW+x+q[0]].classList.add("land");
+  });
+
+  if(!lines){
+    bb.score+=gain;
+    if(bb.score>bestB){bestB=bb.score;store.set("static-block-best",String(bestB))}
+    renderBoard();renderTray();updateScore(true);
+    popup("+"+gain,"",mid);
+    $("block-status").textContent="";
+    if(!bb.pieces.some(function(v){return v&&fitsAnywhere(v)}))gameOver();
+    return;
+  }
+
+  /* Lock input while the completed cells animate. The board data remains
+     intact until the animation finishes, so only the completed lines vanish. */
+  bb.clearing=true;
+  idx.forEach(function(k){
+    var el=bCells[k];
+    var row=(k/BW)|0,col=k%BW;
+    var distance=Math.min(
+      fullRows.length?Math.min.apply(null,fullRows.map(function(r){return Math.abs(row-r)})):99,
+      fullCols.length?Math.min.apply(null,fullCols.map(function(c){return Math.abs(col-c)})):99
+    );
+    el.style.setProperty("--d",Math.min(220,distance*34)+"ms");
+    el.classList.add("clr");
+  });
+
+  var perfect=idx.length===BW*BW;
   if(perfect)gain+=100;
   bb.score+=gain;
   if(bb.score>bestB){bestB=bb.score;store.set("static-block-best",String(bestB))}
-  if(bb.pieces.every(function(v){return !v}))bb.pieces=genPieces();
-  var alive=bb.pieces.some(function(v){return v&&fitsAnywhere(v)});
+  $("block-status").textContent=CLEAR_NAMES[Math.min(lines,5)]+(bb.combo>1?" · Combo x"+bb.combo:"");
+  popup("+"+gain,(perfect?"PERFECT! ": "")+(bb.combo>1?"Combo x"+bb.combo:CLEAR_NAMES[Math.min(lines,5)]),mid);
+  bBoard.classList.remove("flash");void bBoard.offsetWidth;bBoard.classList.add("flash");
+  vibrate(lines>1?[30,20,60]:25);
+  updateScore(true);
 
-  renderBoard();renderTray();updateScore(true);
-  p.c.forEach(function(q){bCells[(y+q[1])*BW+x+q[0]].classList.add("land")});
-  var cx=x+(p.w-1)/2,cy=y+(p.h-1)/2;
-  idx.forEach(function(k){
-    var el=bCells[k];el.classList.add("clr");
-    el.style.animationDelay=Math.round((Math.abs(k%BW-cx)+Math.abs(((k/BW)|0)-cy))*35)+"ms";
-  });
-  setTimeout(function(){bCells.forEach(function(el){el.style.animationDelay=""})},1000);
-  var mid=(y+Math.floor(p.h/2))*BW+x+Math.floor(p.w/2);
-  if(lines){
-    popup("+"+gain,(perfect?"PERFECT! ":"")+(bb.combo>1?"Combo x"+bb.combo:CLEAR_NAMES[Math.min(lines,5)]),mid);
-    $("block-status").textContent=CLEAR_NAMES[Math.min(lines,5)]+(bb.combo>1?" · Combo x"+bb.combo:"");
-    bBoard.classList.remove("flash");void bBoard.offsetWidth;bBoard.classList.add("flash");
-    vibrate(lines>1?[30,20,60]:25);
-  }else{
-    popup("+"+gain,"",mid);
-    $("block-status").textContent=alive?"":"";
-  }
-  if(!alive)gameOver();
+  clearTimer=setTimeout(function(){
+    clearTimer=null;
+    /* Clear the union of completed rows/columns; every other cell survives. */
+    idx.forEach(function(k){bb.cells[k]=0});
+    bb.clearing=false;
+    renderBoard();renderTray();updateScore(false);
+    var alive=bb.pieces.some(function(v){return v&&fitsAnywhere(v)});
+    if(!alive)gameOver();
+  },720);
 }
 function gameOver(){
   bb.over=true;
@@ -838,8 +976,9 @@ function gameOver(){
   setTimeout(function(){$("block-over").hidden=false},550);
 }
 function resetBlocks(){
+  if(clearTimer){clearTimeout(clearTimer);clearTimer=null}
   if(drag)endDrag(null,true);
-  bb={cells:Array(BW*BW).fill(0),pieces:[],score:0,combo:0,over:false};
+  bb={cells:Array(BW*BW).fill(0),pieces:[],score:0,combo:0,over:false,clearing:false};
   bb.pieces=genPieces();
   $("block-over").hidden=true;$("block-status").textContent="Drag a shape onto the board.";
   renderBoard();renderTray();updateScore(false);
@@ -942,6 +1081,24 @@ function flashAlarm(){var f=$("bg-flash");if(!f)return;f.classList.remove("on");
     });
     document.documentElement.addEventListener("pointerleave",function(){ml.style.opacity="0"});
   }
+})();
+
+/* ================= STATIC boot sequence ================= */
+(function(){
+  var intro=$("static-intro"),skip=$("intro-skip");
+  if(!intro)return;
+  var reduced=window.matchMedia&&window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var already=false;
+  try{already=sessionStorage.getItem("static-intro-seen")==="1"}catch(e){}
+  function finish(){
+    if(!intro||intro.classList.contains("done"))return;
+    intro.classList.add("done");
+    try{sessionStorage.setItem("static-intro-seen","1")}catch(e){}
+    setTimeout(function(){if(intro.parentNode)intro.parentNode.removeChild(intro)},750);
+  }
+  if(skip)skip.addEventListener("click",finish);
+  if(reduced||already){finish();return}
+  window.setTimeout(finish,3650);
 })();
 
 /* ================= start ================= */
