@@ -57,6 +57,19 @@ button:active:not(:disabled){transform:scale(.97)}
 .sub{margin:30px 0 10px;color:var(--mute);font:700 .85rem "Orbitron",sans-serif;letter-spacing:.14em}
 
 /* ---------- twitch / youtube ---------- */
+.twitch-search{position:relative;flex:1 1 260px;min-width:220px}
+.twitch-search input{width:100%;min-width:0}
+.twitch-suggestions{position:absolute;top:calc(100% + 6px);left:0;right:0;z-index:40;display:none;max-height: min( min(60vh, 420px), 420px);overflow:auto;background:#10070a;border:1px solid var(--acc-dim);border-radius:10px;box-shadow:0 14px 36px rgba(0,0,0,.65)}
+.twitch-suggestions.open{display:block}
+.twitch-suggestion{display:flex;width:100%;align-items:center;gap:11px;padding:9px 12px;text-align:left;background:transparent;border:0;border-bottom:1px solid rgba(255,43,74,.12);cursor:pointer}
+.twitch-suggestion:last-child{border-bottom:0}
+.twitch-suggestion:hover,.twitch-suggestion[aria-selected="true"]{background:rgba(255,43,74,.13)}
+.twitch-suggestion img{width:38px;height:38px;flex:0 0 38px;object-fit:cover;border-radius:50%;background:#241216}
+.twitch-suggestion .tw-names{min-width:0;flex:1;display:flex;flex-direction:column;line-height:1.2}
+.twitch-suggestion .tw-display{font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.twitch-suggestion .tw-login{font-size:.88rem;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.twitch-suggestion .tw-live{font:700 .68rem "Orbitron",sans-serif;color:#ff647b;white-space:nowrap}
+.twitch-suggestion .tw-live.offline{color:var(--mute)}
 .favs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;min-height:34px;align-items:center}
 .chip{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:8px;background:var(--panel);transition:.16s}
 .chip:hover{border-color:var(--acc-dim)}
@@ -374,7 +387,10 @@ input:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(255,43,74,.22),0 0
   <!-- TWITCH -->
   <section id="twitch" hidden>
     <div class="bar">
-      <input id="ch" placeholder="Streamer name or twitch.tv link" autocomplete="off" aria-label="Streamer name">
+      <div class="twitch-search">
+        <input id="ch" placeholder="Streamer name or twitch.tv link" autocomplete="off" aria-label="Streamer name" aria-autocomplete="list" aria-controls="twitch-suggestions" aria-expanded="false">
+        <div class="twitch-suggestions" id="twitch-suggestions" role="listbox" aria-label="Twitch channel suggestions"></div>
+      </div>
       <button class="go" id="watch">Watch</button>
       <button class="ghost" id="addfav">Save streamer</button>
     </div>
@@ -509,8 +525,72 @@ function drawFavs(){
     c.appendChild(b);c.appendChild(x);box.appendChild(c);
   });
 }
-$("watch").onclick=function(){loadStream($("ch").value)};
-$("ch").addEventListener("keydown",function(e){if(e.key==="Enter")loadStream($("ch").value)});
+var TWITCH_SEARCH_API="https://static-twitch-search.maximkonradi0608.workers.dev/search";
+var twitchTimer=null,twitchAbort=null,twitchResults=[],twitchActive=-1;
+function closeTwitchSuggestions(){
+  var box=$("twitch-suggestions");box.classList.remove("open");box.innerHTML="";
+  $("ch").setAttribute("aria-expanded","false");$("ch").removeAttribute("aria-activedescendant");
+  twitchResults=[];twitchActive=-1;
+}
+function chooseTwitch(index){
+  var item=twitchResults[index];if(!item)return;
+  $("ch").value=item.login||"";
+  closeTwitchSuggestions();
+  $("ch").focus();
+}
+function renderTwitchSuggestions(items){
+  var box=$("twitch-suggestions");box.innerHTML="";twitchResults=items||[];twitchActive=-1;
+  if(!twitchResults.length){closeTwitchSuggestions();return}
+  twitchResults.forEach(function(item,index){
+    var b=document.createElement("button");b.type="button";b.className="twitch-suggestion";b.id="tw-suggestion-"+index;
+    b.setAttribute("role","option");b.setAttribute("aria-selected","false");
+    var img=document.createElement("img");img.alt="";img.loading="lazy";
+    if(item.image&&/^https:\/\//i.test(item.image))img.src=item.image;
+    var names=document.createElement("span");names.className="tw-names";
+    var display=document.createElement("span");display.className="tw-display";display.textContent=item.name||item.login||"Unknown channel";
+    var login=document.createElement("span");login.className="tw-login";login.textContent="@"+(item.login||"");
+    names.appendChild(display);names.appendChild(login);
+    var live=document.createElement("span");live.className="tw-live"+(item.live?"":" offline");live.textContent=item.live?"LIVE":"OFFLINE";
+    b.appendChild(img);b.appendChild(names);b.appendChild(live);
+    b.addEventListener("mousedown",function(e){e.preventDefault();chooseTwitch(index)});
+    box.appendChild(b);
+  });
+  box.classList.add("open");$("ch").setAttribute("aria-expanded","true");
+}
+function searchTwitch(query){
+  if(twitchAbort)twitchAbort.abort();
+  twitchAbort=window.AbortController?new AbortController():null;
+  var options=twitchAbort?{signal:twitchAbort.signal}:{};
+  fetch(TWITCH_SEARCH_API+"?q="+encodeURIComponent(query),options)
+    .then(function(r){if(!r.ok)throw new Error("Search unavailable");return r.json()})
+    .then(function(data){
+      if($("ch").value.trim()!==query)return;
+      if(data.error)throw new Error(data.error);
+      renderTwitchSuggestions(data.data||[]);
+    })
+    .catch(function(err){if(err.name!=="AbortError"&&$("ch").value.trim()===query)closeTwitchSuggestions()});
+}
+$("ch").addEventListener("input",function(){
+  clearTimeout(twitchTimer);if(twitchAbort)twitchAbort.abort();
+  var query=this.value.trim();
+  if(query.length<2){closeTwitchSuggestions();return}
+  twitchTimer=setTimeout(function(){searchTwitch(query)},300);
+});
+$("ch").addEventListener("keydown",function(e){
+  if(e.key==="ArrowDown"&&twitchResults.length){e.preventDefault();twitchActive=(twitchActive+1)%twitchResults.length}
+  else if(e.key==="ArrowUp"&&twitchResults.length){e.preventDefault();twitchActive=(twitchActive-1+twitchResults.length)%twitchResults.length}
+  else if(e.key==="Escape"){closeTwitchSuggestions();return}
+  else if(e.key==="Enter"){
+    e.preventDefault();
+    if(twitchActive>=0)chooseTwitch(twitchActive);
+    else{closeTwitchSuggestions();loadStream(this.value)}
+    return;
+  }else return;
+  [].forEach.call($("twitch-suggestions").children,function(el,i){el.setAttribute("aria-selected",String(i===twitchActive))});
+  var active=$("tw-suggestion-"+twitchActive);if(active)active.scrollIntoView({block:"nearest"});
+});
+document.addEventListener("click",function(e){if(!e.target.closest(".twitch-search"))closeTwitchSuggestions()});
+$("watch").onclick=function(){closeTwitchSuggestions();loadStream($("ch").value)};
 $("addfav").onclick=function(){
   var n=cleanName($("ch").value);
   if(n&&favs.indexOf(n)<0){favs.push(n);store.set("static-favs",JSON.stringify(favs));drawFavs()}
