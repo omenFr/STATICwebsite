@@ -439,6 +439,41 @@ nav#cats button .ci{margin-right:8px;opacity:.85;font-size:.85em}
 .auth-err{color:var(--acc2)}
 .modal-card .note{margin-top:12px}
 @media(max-width:520px){.watermark{display:none}.acct{max-width:160px}}
+
+/* ---------- social ---------- */
+.badge{display:inline-grid;place-items:center;min-width:18px;height:18px;padding:0 5px;margin-left:8px;border-radius:9px;background:var(--acc);color:#fff;font:800 .68rem "Orbitron",sans-serif;letter-spacing:0;text-shadow:none;box-shadow:0 0 12px var(--glow)}
+.gate{max-width:480px;margin:30px auto;padding:34px 26px;text-align:center;border:1px solid hsla(var(--hue),100%,58%,.4);border-radius:18px;background:hsla(var(--hue),60%,8%,.6);box-shadow:0 0 26px hsla(var(--hue),100%,58%,.2)}
+.gate[hidden]{display:none}
+.gate-ic{font-size:2.4rem}
+.gate h3{margin:10px 0 6px;font:800 1.1rem "Orbitron",sans-serif;letter-spacing:.1em;color:var(--acc)}
+.gate-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.social-grid{display:grid;grid-template-columns:minmax(280px,380px) minmax(0,1fr);gap:18px;align-items:start}
+.social-side .sub{margin:22px 0 8px}
+.social-side>div:first-child .sub{margin-top:4px}
+.frow{display:flex;align-items:center;gap:12px;width:100%;margin-bottom:8px;padding:10px 12px;text-align:left;border-radius:12px;border:1px solid hsla(var(--hue),100%,58%,.3);background:hsla(var(--hue),60%,9%,.6);cursor:pointer;color:var(--ink);transition:.16s}
+.frow:hover{border-color:hsla(var(--hue),100%,58%,.65);transform:translateX(3px)}
+.frow.sel{border-color:var(--acc);background:linear-gradient(135deg,hsla(var(--hue),100%,58%,.22),hsla(var(--hue),100%,45%,.08));box-shadow:0 0 16px hsla(var(--hue),100%,58%,.3)}
+.fn,.rn{display:flex;flex-direction:column;min-width:0;flex:1;line-height:1.2}
+.fn b,.rn b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ft{color:var(--mute);font-weight:600}
+.fs{font:700 .66rem "Orbitron",sans-serif;letter-spacing:.12em;color:var(--mute)}
+.fs.on{color:#5dff9a;text-shadow:0 0 10px rgba(93,255,154,.5)}
+.avwrap{position:relative;display:inline-flex}
+.pdot{position:absolute;right:-2px;bottom:-2px;width:11px;height:11px;border-radius:50%;background:#5b4a4e;border:2px solid #0a0507}
+.pdot.on{background:#38ff7e;box-shadow:0 0 10px #38ff7e}
+.rrow{display:flex;align-items:center;gap:12px;margin-bottom:8px;padding:10px 12px;border-radius:12px;border:1px dashed hsla(var(--hue),100%,58%,.45);background:hsla(var(--hue),60%,9%,.5)}
+.ract{display:flex;gap:6px}
+.sm{padding:7px 12px;font-size:.92rem;border-radius:8px}
+.chatpane{display:flex;flex-direction:column;min-height:460px}
+.cp-head{display:flex;align-items:center;gap:14px;padding:14px 16px;border-bottom:1px solid hsla(var(--hue),100%,58%,.3)}
+.cp-head .fn{font-size:1.1rem}
+.cp-body{flex:1;display:grid;place-items:center;padding:30px 20px;text-align:center;color:var(--mute)}
+.cp-body b{display:block;margin:8px 0 4px;color:var(--ink);font:800 1rem "Orbitron",sans-serif;letter-spacing:.1em}
+.cp-ic{font-size:2.4rem}
+.cp-foot{display:flex;gap:8px;padding:12px;border-top:1px solid hsla(var(--hue),100%,58%,.3)}
+.cp-foot input:disabled,.cp-foot button:disabled{opacity:.45;cursor:not-allowed}
+.game-status.err{color:#ffb3bd}
+@media(max-width:820px){.social-grid{grid-template-columns:1fr}.chatpane{min-height:340px}}
 </style>
 </head>
 <body>
@@ -564,6 +599,33 @@ nav#cats button .ci{margin-right:8px;opacity:.85;font-size:.85em}
     <div class="block-tray" id="block-tray" aria-label="Available shapes"></div>
   </section>
 
+  <!-- SOCIAL -->
+  <section id="social" hidden>
+    <div class="game-head"><div><h2 class="game-title">SOCIAL</h2><p class="note">Add friends by name#tag and see who's online.</p></div></div>
+    <div class="gate" id="social-out" hidden>
+      <div class="gate-ic" aria-hidden="true">&#128101;</div>
+      <h3>Sign in to add friends</h3>
+      <p class="note">Make an account with a name and tag, then send friend requests and see who's online.</p>
+      <div class="gate-btns"><button class="go" id="gate-in" type="button">Sign in</button><button class="ghost" id="gate-up" type="button">Create account</button></div>
+    </div>
+    <div id="social-in" hidden>
+      <form class="bar" id="fr-form" novalidate>
+        <input id="fr-id" placeholder="Add a friend: Name#TAG" maxlength="24" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Friend name and tag">
+        <button class="go" type="submit">Send request</button>
+      </form>
+      <p class="game-status" id="fr-status" aria-live="polite"></p>
+      <div class="social-grid">
+        <div class="social-side">
+          <div id="fr-requests"></div>
+          <div id="fr-online"></div>
+          <div id="fr-offline"></div>
+          <div id="fr-sent"></div>
+        </div>
+        <div class="frame chatpane" id="chatpane"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- INFO -->
   <section id="info" hidden>
     <div class="game-head">
@@ -665,6 +727,7 @@ var CATS=[
   {id:"home",label:"Home",icon:"⌂",items:["home"]},
   {id:"watch",label:"Watch",icon:"▶",items:["twitch","youtube"]},
   {id:"play",label:"Play",icon:"◈",items:["mines","blocks"]},
+  {id:"social",label:"Social",icon:"☺",items:["social"]},
   {id:"links",label:"Links",icon:"↗",items:["info"]}
 ];
 var TOOLS={
@@ -673,6 +736,7 @@ var TOOLS={
   youtube:{label:"YouTube",icon:"▶️",desc:"Search videos or paste a link and play it right here."},
   mines:{label:"Minesweeper",icon:"💣",desc:"Three difficulties, flags, chording and best times."},
   blocks:{label:"Block Blast",icon:"🧱",desc:"Drag shapes, clear lines, chain combos."},
+  social:{label:"Social",icon:"👥",desc:"Add friends by name#tag and see who's online."},
   info:{label:"Links",icon:"🔗",desc:"Your quick links. Add your own."}
 };
 var catNav=$("cats"),subNav=$("subnav"),catBtns=[];
@@ -715,6 +779,7 @@ function tileMeta(id){
     return parts.length?"Best: "+parts.join(" · "):"No wins yet";
   }
   if(id==="blocks")return bestB?"Best score: "+bestB:"No score yet";
+  if(id==="social")return socialMeta();
   if(id==="info")return (DEFAULT_LINKS.length+customLinks.length)+" links";
   return "";
 }
@@ -749,6 +814,7 @@ function show(name){
   buildSubnav(cat,name);
   document.querySelectorAll("main section").forEach(function(s){s.hidden=s.id!==name});
   if(name==="home")drawHome();
+  if(name==="social")socialEnter();else socialLeave();
   store.set("static-tab",name);store.set("static-last-"+cat.id,name);
 }
 
@@ -1502,6 +1568,7 @@ function setAccount(user,token){
     store.set("static-lastid",account.user.name+"#"+account.user.tag);
   }else{store.set("static-token","");store.set("static-user","")}
   drawAccount();
+  onAccountChange();
   if(!$("home").hidden)drawHome();
 }
 
@@ -1589,6 +1656,177 @@ if(account.token){
   api("/me").then(function(d){setAccount(d.user,account.token)})
     .catch(function(e){if(e&&e.status===401)setAccount(null)});
 }
+
+/* ================= Social: friends & presence ================= */
+var social={friends:[],incoming:[],outgoing:[],sel:"",loaded:false};
+var socialTimer=null,pingTimer=null,presenceKey="";
+var ID_RE=/^\s*([A-Za-z0-9_]{2,16})\s*#\s*([A-Za-z0-9]{3,5})\s*$/;
+function keyOf(u){return (u.name+"#"+u.tag).toLowerCase()}
+function setBadge(n){
+  catBtns.forEach(function(b){
+    if(b.dataset.cat!=="social")return;
+    var s=b.querySelector(".badge");
+    if(!n){if(s)s.parentNode.removeChild(s);return}
+    if(!s){s=document.createElement("span");s.className="badge";b.appendChild(s)}
+    s.textContent=n>9?"9+":String(n);
+  });
+}
+/* "I'm online" heartbeat every 2 minutes while the site is open. */
+function ping(){
+  if(!account.token)return;
+  api("/ping",{method:"POST"}).then(function(d){
+    var n=d.pending||0;
+    if(n>social.incoming.length&&$("social").hidden)setBadge(n);
+    else if(n===0)setBadge(0);
+  }).catch(function(e){if(e&&e.status===401)setAccount(null)});
+}
+function startPresence(){
+  var k=account.user?keyOf(account.user):"";
+  if(!k){stopPresence();return}
+  if(k===presenceKey&&pingTimer)return;
+  clearInterval(pingTimer);presenceKey=k;ping();pingTimer=setInterval(ping,120000);
+}
+function stopPresence(){clearInterval(pingTimer);pingTimer=null;presenceKey=""}
+function onAccountChange(){
+  if(account.user)startPresence();
+  else{stopPresence();social={friends:[],incoming:[],outgoing:[],sel:"",loaded:false};setBadge(0)}
+  if(!$("social").hidden){drawSocial();if(account.user)loadSocial()}
+}
+document.addEventListener("visibilitychange",function(){if(!document.hidden)ping()});
+window.addEventListener("pageshow",function(e){if(e.persisted)ping()});
+window.addEventListener("pagehide",function(){
+  if(account.token&&navigator.sendBeacon){
+    try{navigator.sendBeacon(AUTH_API+"/offline",JSON.stringify({token:account.token}))}catch(e){}
+  }
+});
+
+function socialMeta(){
+  if(!account.user)return "Sign in to add friends";
+  if(!social.loaded)return "Friends and who's online";
+  var on=social.friends.filter(function(f){return f.online}).length,r=social.incoming.length;
+  return on+" of "+social.friends.length+" friends online"+(r?" · "+r+" request"+(r>1?"s":""):"");
+}
+function socialEnter(){drawSocial();loadSocial();clearInterval(socialTimer);socialTimer=setInterval(loadSocial,12000)}
+function socialLeave(){clearInterval(socialTimer);socialTimer=null}
+function loadSocial(){
+  if(!account.token||document.hidden)return;
+  api("/social").then(function(d){
+    social.friends=d.friends||[];social.incoming=d.incoming||[];social.outgoing=d.outgoing||[];social.loaded=true;
+    setBadge(social.incoming.length);drawSocial();
+  }).catch(function(e){
+    if(e&&e.status===401){setAccount(null);return}
+    if(!social.loaded)frStatus(netMsg(e),true);
+  });
+}
+function frStatus(t,err){var s=$("fr-status");s.textContent=t||"";s.classList.toggle("err",!!err)}
+function mkAv(u,big){var s=document.createElement("span");makeAvatar(u,s);if(big)s.classList.add("big");return s}
+function avWithDot(u,online){
+  var w=document.createElement("span");w.className="avwrap";w.appendChild(mkAv(u));
+  var d=document.createElement("span");d.className="pdot"+(online?" on":"");w.appendChild(d);return w;
+}
+function mkBtn(text,cls,fn){var b=document.createElement("button");b.type="button";b.className=cls;b.textContent=text;b.onclick=fn;return b}
+function nameBlock(u,cls){
+  var n=document.createElement("span");n.className=cls;
+  var a=document.createElement("b");a.textContent=u.name;
+  var t=document.createElement("span");t.className="ft";t.textContent="#"+u.tag;
+  n.appendChild(a);n.appendChild(t);return n;
+}
+function friendAction(path,f,msg){
+  api(path,{method:"POST",body:{name:f.name,tag:f.tag}})
+    .then(function(){frStatus(msg||"");loadSocial()})
+    .catch(function(e){frStatus(netMsg(e),true)});
+}
+function reqRow(f,kind){
+  var r=document.createElement("div");r.className="rrow";
+  r.appendChild(mkAv(f));r.appendChild(nameBlock(f,"rn"));
+  var act=document.createElement("span");act.className="ract";
+  if(kind==="in"){
+    act.appendChild(mkBtn("Accept","go sm",function(){friendAction("/friends/accept",f,"You and "+f.name+"#"+f.tag+" are now friends!")}));
+    act.appendChild(mkBtn("Decline","ghost sm",function(){friendAction("/friends/decline",f,"Request declined.")}));
+  }else{
+    act.appendChild(mkBtn("Cancel","ghost sm",function(){friendAction("/friends/cancel",f,"Request cancelled.")}));
+  }
+  r.appendChild(act);return r;
+}
+function friendRow(f){
+  var b=document.createElement("button");b.type="button";b.className="frow"+(keyOf(f)===social.sel?" sel":"");
+  b.appendChild(avWithDot(f,f.online));
+  var n=nameBlock(f,"fn");
+  var st=document.createElement("span");st.className="fs"+(f.online?" on":"");st.textContent=f.online?"ONLINE":"OFFLINE";
+  n.appendChild(st);b.appendChild(n);
+  b.onclick=function(){social.sel=keyOf(f);drawSocial()};
+  return b;
+}
+function drawList(id,items,builder,title){
+  var box=$(id);box.innerHTML="";
+  if(!items.length)return;
+  var h=document.createElement("h3");h.className="sub";h.textContent=title+" · "+items.length;
+  box.appendChild(h);items.forEach(function(x){box.appendChild(builder(x))});
+}
+function drawChatPane(friends){
+  var box=$("chatpane");box.innerHTML="";
+  var f=friends.filter(function(x){return keyOf(x)===social.sel})[0];
+  var body=document.createElement("div");body.className="cp-body";
+  var inner=document.createElement("div");
+  var ic=document.createElement("div");ic.className="cp-ic";ic.setAttribute("aria-hidden","true");ic.textContent="💬";
+  var h=document.createElement("b");var p=document.createElement("p");p.style.margin="0";
+  inner.appendChild(ic);inner.appendChild(h);inner.appendChild(p);body.appendChild(inner);
+  if(!f){
+    h.textContent=friends.length?"PICK A FRIEND":"NO FRIENDS YET";
+    p.textContent=friends.length?"Choose someone from the list.":"Send a request to start your list.";
+    box.appendChild(body);return;
+  }
+  var head=document.createElement("div");head.className="cp-head";
+  var av=avWithDot(f,f.online);av.firstChild.classList.add("big");
+  var n=nameBlock(f,"fn");
+  var st=document.createElement("span");st.className="fs"+(f.online?" on":"");st.textContent=f.online?"ONLINE":"OFFLINE";
+  n.appendChild(st);
+  head.appendChild(av);head.appendChild(n);
+  head.appendChild(mkBtn("Remove friend","ghost sm",function(){
+    if(window.confirm("Remove "+f.name+"#"+f.tag+" from your friends?")){social.sel="";friendAction("/friends/remove",f,f.name+"#"+f.tag+" was removed.")}
+  }));
+  h.textContent="CHAT IS COMING SOON";
+  p.textContent="You'll be able to message "+f.name+" right here.";
+  var foot=document.createElement("div");foot.className="cp-foot";
+  var inp=document.createElement("input");inp.disabled=true;inp.placeholder="Chat is coming soon…";inp.setAttribute("aria-label","Message (not available yet)");
+  var send=mkBtn("Send","go",function(){});send.disabled=true;
+  foot.appendChild(inp);foot.appendChild(send);
+  box.appendChild(head);box.appendChild(body);box.appendChild(foot);
+}
+function drawSocial(){
+  var signed=!!account.user;
+  $("social-out").hidden=signed;$("social-in").hidden=!signed;
+  if(!signed)return;
+  var fr=social.friends.slice().sort(function(a,b){
+    return ((b.online?1:0)-(a.online?1:0))||a.name.toLowerCase().localeCompare(b.name.toLowerCase());
+  });
+  if(!fr.some(function(f){return keyOf(f)===social.sel}))social.sel=fr.length?keyOf(fr[0]):"";
+  drawList("fr-requests",social.incoming,function(f){return reqRow(f,"in")},"REQUESTS");
+  drawList("fr-online",fr.filter(function(f){return f.online}),friendRow,"ONLINE");
+  drawList("fr-offline",fr.filter(function(f){return !f.online}),friendRow,"OFFLINE");
+  drawList("fr-sent",social.outgoing,function(f){return reqRow(f,"out")},"SENT REQUESTS");
+  if(!fr.length){
+    var note=document.createElement("p");note.className="note";
+    note.textContent="No friends yet. Send a request above and they'll show up here once they accept.";
+    $("fr-online").appendChild(note);
+  }
+  drawChatPane(fr);
+}
+$("fr-form").addEventListener("submit",function(e){
+  e.preventDefault();
+  var m=$("fr-id").value.match(ID_RE);
+  if(!m){frStatus("Enter your friend as Name#TAG, like Alex#4F2K.",true);return}
+  var btn=this.querySelector("button");btn.disabled=true;
+  api("/friends/request",{method:"POST",body:{name:m[1],tag:m[2]}}).then(function(d){
+    $("fr-id").value="";
+    frStatus(d.status==="accepted"?"You and "+m[1]+"#"+m[2]+" are now friends!":"Request sent to "+m[1]+"#"+m[2]+".");
+    loadSocial();
+  }).catch(function(err){frStatus(netMsg(err),true)})
+    .then(function(){btn.disabled=false});
+});
+$("gate-in").onclick=function(){openAuth("login")};
+$("gate-up").onclick=function(){openAuth("signup")};
+if(account.user)startPresence();
 
 /* ================= start ================= */
 applyTheme(store.get("static-theme","red"),false);
