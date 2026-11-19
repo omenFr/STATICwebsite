@@ -490,6 +490,10 @@ nav#cats button .ci{margin-right:8px;opacity:.85;font-size:.85em}
 .wt{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:12px;padding:10px 14px;border:1px solid hsla(var(--hue),100%,58%,.35);border-radius:12px;background:hsla(var(--hue),60%,8%,.6)}
 .wt[hidden]{display:none}.wt-state{flex:1;min-width:200px;color:var(--mute)}
 .wt.live{border-color:var(--acc);box-shadow:0 0 18px hsla(var(--hue),100%,58%,.35)}.wt.live .wt-state{color:var(--ink)}
+#ytframe{position:relative}
+#ytp{position:absolute;inset:0;width:100%;height:100%}
+#yt-ph{position:absolute;inset:0;z-index:2;display:grid;place-items:center;background:#000;padding:0 20px}
+#yt-ph[hidden]{display:none}
 </style>
 </head>
 <body>
@@ -565,7 +569,7 @@ nav#cats button .ci{margin-right:8px;opacity:.85;font-size:.85em}
       <input id="yt" placeholder="Search YouTube or paste a link" autocomplete="off" aria-label="Search YouTube or paste a link">
       <button class="go" id="ytgo">Search</button>
     </div>
-    <div class="frame player" id="ytframe"><div class="empty">Search for a video or paste a link.</div></div>
+    <div class="frame player" id="ytframe"><div class="empty" id="yt-ph">Search for a video or paste a link.</div><div id="ytp"></div></div>
     <div class="wt" id="wt" hidden><span class="wt-state" id="wt-state"></span><button class="go sm" id="wt-host" type="button">Watch together</button><button class="ghost sm" id="wt-leave" type="button" hidden>Leave</button></div>
     <p class="note" id="ytnote"></p>
     <div class="vids" id="ytres"></div>
@@ -1756,19 +1760,26 @@ function ytApi(){
   if((window.YT&&YT.Player)||document.getElementById("yt-api"))return;
   var sc=document.createElement("script");sc.id="yt-api";sc.src="https://www.youtube.com/iframe_api";document.head.appendChild(sc);
 }
-function ytEnsure(id,done,start){
-  function go(){
-    if(yp&&ypReady){yp.loadVideoById({videoId:id,startSeconds:start||0});if(done)done();return}
-    $("ytframe").innerHTML='<div id="ytp"></div>';ypReady=false;
-    yp=new YT.Player("ytp",{width:"100%",height:"100%",videoId:id,host:"https://www.youtube-nocookie.com",
-      playerVars:{autoplay:1,rel:0,playsinline:1,start:Math.floor(start||0)},
-      events:{onReady:function(){ypReady=true;if(done)done()},
-        onStateChange:function(e){if(wt.role==="host"&&e.data>=0&&e.data<3)queuePush(true)}}});
-  }
-  if(window.YT&&YT.Player)go();else{window.onYouTubeIframeAPIReady=go;ytApi()}
+var ypWant=null;
+function ytMake(){   /* the player is built in advance, so joining only has to load a video */
+  if(yp)return;
+  yp=new YT.Player("ytp",{width:"100%",height:"100%",host:"https://www.youtube-nocookie.com",
+    playerVars:{rel:0,playsinline:1},
+    events:{onReady:function(){ypReady=true;if(ypWant){var q=ypWant;ypWant=null;ytLoad(q)}},
+      onStateChange:function(e){if(wt.role==="host"&&e.data>=0&&e.data<3)queuePush(true)}}});
 }
+function ytLoad(q){
+  yp.loadVideoById({videoId:q.id,startSeconds:q.start||0});
+  $("yt-ph").hidden=true;if(q.done)q.done();
+}
+function ytEnsure(id,done,start){
+  var q={id:id,start:start,done:done};
+  if(window.YT&&YT.Player){ytMake();if(ypReady)ytLoad(q);else ypWant=q}
+  else{ypWant=q;ytApi()}
+}
+window.onYouTubeIframeAPIReady=function(){ytMake()};
 /* host: send play/pause/seek once things settle (350 ms), plus a quiet heartbeat */
-function queuePush(changed){clearTimeout(wt.tm);wt.tm=setTimeout(function(){pushParty(changed)},changed?350:0)}
+function queuePush(changed){clearTimeout(wt.tm);wt.tm=setTimeout(function(){pushParty(changed)},changed?200:0)}
 function pushParty(changed){
   if(wt.role!=="host"||!ypReady)return;
   var v=(yp.getVideoData()||{}).video_id;if(!v)return;
@@ -1807,8 +1818,8 @@ function joinParty(f){
   if(wt.role==="host")leaveParty("");
   clearInterval(wt.poll);
   wt.role="guest";wt.host=f;wt.vid="";wt.seen=0;wt.hold=0;wt.busy=false;closeAcctMenu();show("youtube");
-  if(!ypReady){var m=document.createElement("div");m.className="empty";m.textContent="Joining "+f.name+"#"+f.tag+"…";$("ytframe").innerHTML="";$("ytframe").appendChild(m)}
-  drawWt();pollParty();wt.poll=setInterval(pollParty,2000);
+  var ph=$("yt-ph");ph.textContent="Joining "+f.name+"#"+f.tag+"…";ph.hidden=false;
+  drawWt();pollParty();wt.poll=setInterval(pollParty,1500);
 }
 function pollParty(){
   if(wt.role!=="guest")return;
@@ -1823,7 +1834,7 @@ function applyParty(d){
   var tgt=w.p?w.t+(d.now-w.at)/1000:w.t;
   if(wt.vid!==w.v){
     if(wt.busy)return;
-    wt.busy=true;wt.vid=w.v;wt.seen=w.c;
+    wt.busy=true;wt.vid=w.v;wt.seen=w.c;$("yt-ph").textContent="Loading video…";
     ytEnsure(w.v,function(){wt.busy=false;wt.hold=Date.now()+3000;if(!w.p)setTimeout(function(){if(ypReady)yp.pauseVideo()},900)},tgt);
     return;
   }
