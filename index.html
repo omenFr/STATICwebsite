@@ -909,7 +909,7 @@ function ytId(u){
 function decodeHTML(s){var t=document.createElement("textarea");t.innerHTML=s||"";return t.value}
 function playYT(id){
   if(wt.role==="guest")leaveParty("");
-  wt.vid=id;ytEnsure(id,function(){if(wt.role==="host"){wt.last=0;pushParty()}});
+  wt.vid=id;ytEnsure(id,function(){if(wt.role==="host")queuePush(true)});
   $("ytframe").scrollIntoView({behavior:"smooth",block:"start"});
 }
 function renderYT(items){
@@ -1751,29 +1751,42 @@ function drawFriends(){
 }
 
 /* ================= Watch together (YouTube) ================= */
-var yp=null,ypReady=false,wt={role:"off",host:null,poll:null,last:0,vid:"",busy:false};
-function ytEnsure(id,done){
+var yp=null,ypReady=false,wt={role:"off",host:null,poll:null,beat:null,tm:null,vid:"",seen:0,hold:0,busy:false,lp:null};
+function ytApi(){
+  if((window.YT&&YT.Player)||document.getElementById("yt-api"))return;
+  var sc=document.createElement("script");sc.id="yt-api";sc.src="https://www.youtube.com/iframe_api";document.head.appendChild(sc);
+}
+function ytEnsure(id,done,start){
   function go(){
-    if(yp&&ypReady){yp.loadVideoById(id);if(done)done();return}
+    if(yp&&ypReady){yp.loadVideoById({videoId:id,startSeconds:start||0});if(done)done();return}
     $("ytframe").innerHTML='<div id="ytp"></div>';ypReady=false;
     yp=new YT.Player("ytp",{width:"100%",height:"100%",videoId:id,host:"https://www.youtube-nocookie.com",
-      playerVars:{autoplay:1,rel:0,playsinline:1},
-      events:{onReady:function(){ypReady=true;if(done)done()},onStateChange:function(){if(wt.role==="host")pushParty()}}});
+      playerVars:{autoplay:1,rel:0,playsinline:1,start:Math.floor(start||0)},
+      events:{onReady:function(){ypReady=true;if(done)done()},
+        onStateChange:function(e){if(wt.role==="host"&&e.data>=0&&e.data<3)queuePush(true)}}});
   }
-  if(window.YT&&YT.Player)go();
-  else{
-    window.onYouTubeIframeAPIReady=go;
-    if(!document.getElementById("yt-api")){var sc=document.createElement("script");sc.id="yt-api";sc.src="https://www.youtube.com/iframe_api";document.head.appendChild(sc)}
-  }
+  if(window.YT&&YT.Player)go();else{window.onYouTubeIframeAPIReady=go;ytApi()}
 }
-function pushParty(){
-  if(!ypReady||Date.now()-wt.last<500)return;
+/* host: send play/pause/seek once things settle (350 ms), plus a quiet heartbeat */
+function queuePush(changed){clearTimeout(wt.tm);wt.tm=setTimeout(function(){pushParty(changed)},changed?350:0)}
+function pushParty(changed){
+  if(wt.role!=="host"||!ypReady)return;
   var v=(yp.getVideoData()||{}).video_id;if(!v)return;
-  wt.last=Date.now();
-  api("/party/set",{method:"POST",body:{v:v,t:yp.getCurrentTime(),p:yp.getPlayerState()===1}}).catch(function(){});
+  var t=yp.getCurrentTime(),p=yp.getPlayerState()===1;
+  wt.lp={t:t,p:p,at:Date.now()};
+  api("/party/set",{method:"POST",body:{v:v,t:t,p:p,c:changed?1:0}}).catch(function(){});
+}
+function hostTick(){
+  if(wt.role!=="host"||!ypReady||!wt.lp)return;
+  if(yp.getPlayerState()!==3){
+    var exp=wt.lp.p?wt.lp.t+(Date.now()-wt.lp.at)/1000:wt.lp.t;
+    if(Math.abs(yp.getCurrentTime()-exp)>1.5){queuePush(true);return}   /* seeked */
+  }
+  if(Date.now()-wt.lp.at>20000)pushParty(false);
 }
 function drawWt(){
   var bar=$("wt");bar.hidden=!account.user;if(!account.user)return;
+  ytApi();
   bar.classList.toggle("live",wt.role!=="off");
   $("wt-state").textContent=wt.role==="host"?"You're hosting. Friends can join from their profile menu."
     :wt.role==="guest"?"Watching with "+wt.host.name+"#"+wt.host.tag+". Playback follows the host."
@@ -1781,47 +1794,52 @@ function drawWt(){
   $("wt-host").hidden=wt.role==="guest";$("wt-host").textContent=wt.role==="host"?"Stop party":"Watch together";
   $("wt-leave").hidden=wt.role!=="guest";
 }
-function stopParty(){
-  if(wt.role==="host")api("/party/stop",{method:"POST"}).catch(function(){});
-  wt.role="off";drawWt();
-}
 function leaveParty(msg){
-  clearInterval(wt.poll);wt.poll=null;
+  clearInterval(wt.poll);clearInterval(wt.beat);clearTimeout(wt.tm);wt.poll=wt.beat=wt.tm=null;
   if(wt.role==="host")api("/party/stop",{method:"POST"}).catch(function(){});
   wt.role="off";wt.host=null;
   if($("ytnote"))$("ytnote").textContent=msg||"";
   drawWt();
 }
 function joinParty(f){
-  if(wt.role==="host")stopParty();
+  if(wt.role==="host")leaveParty("");
   clearInterval(wt.poll);
-  wt.role="guest";wt.host=f;wt.vid="";closeAcctMenu();show("youtube");drawWt();
-  pollParty();wt.poll=setInterval(pollParty,3000);
+  wt.role="guest";wt.host=f;wt.vid="";wt.seen=0;wt.hold=0;wt.busy=false;closeAcctMenu();show("youtube");
+  if(!ypReady){var m=document.createElement("div");m.className="empty";m.textContent="Joining "+f.name+"#"+f.tag+"…";$("ytframe").innerHTML="";$("ytframe").appendChild(m)}
+  drawWt();pollParty();wt.poll=setInterval(pollParty,2000);
 }
 function pollParty(){
   if(wt.role!=="guest")return;
   api("/party?name="+encodeURIComponent(wt.host.name)+"&tag="+encodeURIComponent(wt.host.tag)).then(applyParty)
-    .catch(function(e){if(e&&e.status)leaveParty(e.status===401?"":"Couldn't join that party.")});
+    .catch(function(e){if(e&&e.status)leaveParty(e.status===401?"":e.message||"Couldn't join that party.")});
 }
+/* guest: follow the host when something changes, never fight the player in between */
 function applyParty(d){
   if(wt.role!=="guest")return;
   var w=d&&d.party;
   if(!w){leaveParty("The watch party ended.");return}
+  var tgt=w.p?w.t+(d.now-w.at)/1000:w.t;
   if(wt.vid!==w.v){
     if(wt.busy)return;
-    wt.busy=true;wt.vid=w.v;
-    ytEnsure(w.v,function(){wt.busy=false;applyParty(d)});return;
+    wt.busy=true;wt.vid=w.v;wt.seen=w.c;
+    ytEnsure(w.v,function(){wt.busy=false;wt.hold=Date.now()+3000;if(!w.p)setTimeout(function(){if(ypReady)yp.pauseVideo()},900)},tgt);
+    return;
   }
-  if(!ypReady)return;
-  var tgt=w.p?w.t+(d.now-w.at)/1000:w.t;
-  if(Math.abs(yp.getCurrentTime()-tgt)>2.5)yp.seekTo(tgt,true);
-  var st=yp.getPlayerState();
-  if(w.p&&st!==1&&st!==3)yp.playVideo();else if(!w.p&&st===1)yp.pauseVideo();
+  if(!ypReady||Date.now()<wt.hold)return;
+  var st=yp.getPlayerState(),cur=yp.getCurrentTime();
+  if(w.c!==wt.seen){
+    wt.seen=w.c;
+    if(Math.abs(cur-tgt)>1.2){yp.seekTo(tgt,true);wt.hold=Date.now()+2500}
+    if(w.p&&st!==1&&st!==3)yp.playVideo();else if(!w.p&&st===1)yp.pauseVideo();
+  }else if(w.p&&st===1&&Math.abs(cur-tgt)>4){
+    yp.seekTo(tgt,true);wt.hold=Date.now()+2500;
+  }
 }
 $("wt-host").onclick=function(){
   if(wt.role==="host"){leaveParty("");return}
   if(!ypReady||!(yp.getVideoData()||{}).video_id){$("ytnote").textContent="Pick a video first, then start the party.";return}
-  wt.role="host";wt.last=0;drawWt();pushParty();
+  wt.role="host";wt.lp=null;drawWt();pushParty(true);
+  wt.beat=setInterval(hostTick,1000);
 };
 $("wt-leave").onclick=function(){leaveParty("")};
 drawWt();
