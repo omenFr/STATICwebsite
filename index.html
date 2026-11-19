@@ -1774,7 +1774,9 @@ function pushParty(changed){
   var v=(yp.getVideoData()||{}).video_id;if(!v)return;
   var t=yp.getCurrentTime(),p=yp.getPlayerState()===1;
   wt.lp={t:t,p:p,at:Date.now()};
-  api("/party/set",{method:"POST",body:{v:v,t:t,p:p,c:changed?1:0}}).catch(function(){});
+  api("/party/set",{method:"POST",body:{v:v,t:t,p:p,c:changed?1:0}})
+    .then(function(){var n=$("ytnote");if(n.textContent.indexOf("Party error")===0)n.textContent=""})
+    .catch(function(e){$("ytnote").textContent="Party error: "+((e&&e.message)||"can't reach the server")});
 }
 function hostTick(){
   if(wt.role!=="host"||!ypReady||!wt.lp)return;
