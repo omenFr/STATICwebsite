@@ -519,6 +519,22 @@ nav#cats button .ci{margin-right:8px;opacity:.85;font-size:.85em}
 :root[data-theme="white"]{--acc:#fff;--acc2:#fff;--glow:rgba(255,255,255,.55)}
 :root[data-theme="white"] .go,:root[data-theme="white"] .ghost[aria-pressed="true"],:root[data-theme="white"] .seg button[aria-pressed="true"],:root[data-theme="white"] .badge,:root[data-theme="white"] .mc.boom{color:#000;text-shadow:none}
 :root[data-theme="white"] .lb-row.top1{border-color:#fff}
+
+/* ---------- friend parties ---------- */
+.party-panel{margin-top:16px;padding:13px;background:linear-gradient(160deg,var(--panel2),var(--panel));border:1px solid var(--acc-dim);border-radius:12px}
+.party-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}
+.party-head h3{margin:0;color:var(--acc);font:800 .78rem "Orbitron",sans-serif;letter-spacing:.14em}
+.party-state{color:var(--mute);font-size:.92rem;margin:5px 0 10px}
+.party-list{display:grid;gap:7px}
+.party-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:8px 9px;background:rgba(0,0,0,.28);border:1px solid var(--line);border-radius:9px}
+.party-row .party-copy{flex:1;min-width:120px}
+.party-row .party-copy b{display:block}
+.party-row .party-copy small{display:block;color:var(--mute);font-size:.85rem}
+.party-section{margin-top:12px}
+.party-section h4{margin:0 0 7px;color:var(--mute);font:700 .68rem "Orbitron",sans-serif;letter-spacing:.1em}
+.party-panel .go,.party-panel .ghost{padding:7px 11px;font-size:.9rem}
+.party-empty{color:var(--mute);font-size:.9rem;margin:7px 0}
+
 </style>
 </head>
 <body>
@@ -1607,6 +1623,8 @@ function flashAlarm(){var f=$("bg-flash");if(!f)return;f.classList.remove("on");
 /* ================= Accounts (name#tag) ================= */
 var AUTH_API="https://static-auth.maximkonradi0608.workers.dev";
 var account={user:loadJSON("static-user",null),token:store.get("static-token","")};
+var partyState={current:null,invites:[],loading:false};
+var partyTimer=null;
 if(!account.token||!account.user)account={user:null,token:""};
 var authMode="login",availSeq=0,availTimer=null;
 var NAME_RE=/^[A-Za-z0-9_]{2,16}$/,TAG_RE=/^[A-Za-z0-9]{3,5}$/;
@@ -1659,9 +1677,9 @@ function drawAccount(){
   who.appendChild(n1);who.appendChild(n2);top.appendChild(av2);top.appendChild(who);
   var out=document.createElement("button");out.type="button";out.className="ghost am-out";out.textContent="Log out";out.onclick=logout;
   var fr=document.createElement("div");
-  fr.innerHTML='<form class="fr-add" id="fr-form" novalidate><input id="fr-id" placeholder="Add friend: Name#TAG" maxlength="24" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Friend name and tag"><button class="go sm" type="submit">Add</button></form><p class="fr-msg" id="fr-msg" aria-live="polite"></p><div id="am-lists"></div>';
+  fr.innerHTML='<form class="fr-add" id="fr-form" novalidate><input id="fr-id" placeholder="Add friend: Name#TAG" maxlength="24" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Friend name and tag"><button class="go sm" type="submit">Add</button></form><p class="fr-msg" id="fr-msg" aria-live="polite"></p><div id="am-lists"></div><div class="party-panel" id="party-panel" aria-live="polite"></div>';
   fr.querySelector("form").onsubmit=addFriend;
-  m.appendChild(top);m.appendChild(fr);m.appendChild(out);drawFriends();
+  m.appendChild(top);m.appendChild(fr);m.appendChild(out);drawFriends();drawParty();
 }
 function setAccount(user,token){
   account={user:user||null,token:user?(token||""):""};
@@ -1716,7 +1734,7 @@ $("acct-btn").addEventListener("click",function(e){
   e.stopPropagation();
   if(!account.user){openAuth("login");return}
   var m=$("acct-menu"),open=!m.classList.contains("open");
-  m.classList.toggle("open",open);this.setAttribute("aria-expanded",String(open));if(open)loadSocial();
+  m.classList.toggle("open",open);this.setAttribute("aria-expanded",String(open));if(open){loadSocial();loadParty()}
 });
 document.addEventListener("click",function(e){if(!e.target.closest(".acct-wrap"))closeAcctMenu()});
 document.addEventListener("keydown",function(e){
@@ -1782,15 +1800,15 @@ function startPresence(){
   if(!k){stopPresence();return}
   if(k===presenceKey&&pingTimer)return;
   clearInterval(pingTimer);clearInterval(socialTimer);presenceKey=k;
-  ping();loadSocial();
+  ping();loadSocial();loadParty();
   pingTimer=setInterval(ping,120000);
-  socialTimer=setInterval(function(){if(!document.hidden)loadSocial()},30000);
+  socialTimer=setInterval(function(){if(!document.hidden){loadSocial();loadParty()}},15000);
 }
 function stopPresence(){clearInterval(pingTimer);clearInterval(socialTimer);pingTimer=socialTimer=null;presenceKey=""}
 function onAccountChange(){
   if(account.user)startPresence();
-  else{stopPresence();social={friends:[],incoming:[],outgoing:[],loaded:false};leaveParty("")}
-  drawFriends();drawWt();
+  else{stopPresence();social={friends:[],incoming:[],outgoing:[],loaded:false};partyState={current:null,invites:[],loading:false};leaveParty("")}
+  drawFriends();drawParty();drawWt();
 }
 document.addEventListener("visibilitychange",function(){if(!document.hidden)ping()});
 window.addEventListener("pageshow",function(e){if(e.persisted)ping()});
@@ -1803,8 +1821,107 @@ function loadSocial(){
   if(!account.token)return;
   api("/social").then(function(d){
     social.friends=d.friends||[];social.incoming=d.incoming||[];social.outgoing=d.outgoing||[];social.loaded=true;
-    drawFriends();
+    drawFriends();setBadge(social.incoming.length+(partyState.invites||[]).length);
   }).catch(function(e){if(e&&e.status===401)setAccount(null)});
+}
+function loadParty(){
+  if(!account.token)return;
+  Promise.all([api("/party/current"),api("/party/invites")]).then(function(rows){
+    partyState.current=rows[0].party||null;
+    partyState.invites=rows[1].invites||[];
+    drawParty();
+    setBadge(social.incoming.length+partyState.invites.length);
+  }).catch(function(e){if(e&&e.status===401)setAccount(null)});
+}
+function partyMessage(t,err){
+  var m=$("fr-msg");if(m){m.textContent=t||"";m.classList.toggle("err",!!err)}
+}
+function drawParty(){
+  var box=$("party-panel");if(!box)return;
+  box.innerHTML="";
+  if(!account.user){box.hidden=true;return}
+  box.hidden=false;
+  function section(t){
+    var wrap=document.createElement("div");wrap.className="party-section";
+    var h=document.createElement("h4");h.textContent=t;wrap.appendChild(h);box.appendChild(wrap);return wrap;
+  }
+  var head=document.createElement("div");head.className="party-head";
+  var title=document.createElement("h3");title.textContent="PARTY SYSTEM";head.appendChild(title);
+  box.appendChild(head);
+  if(partyState.current){
+    var p=partyState.current;
+    var state=document.createElement("p");state.className="party-state";
+    state.textContent="You're in "+p.host.name+"'s party · "+p.members.length+" member"+(p.members.length===1?"":"s")+".";
+    box.appendChild(state);
+    var members=section("PARTY MEMBERS");
+    (p.members||[]).forEach(function(m){
+      var row=document.createElement("div");row.className="party-row";
+      var copy=document.createElement("div");copy.className="party-copy";
+      var name=document.createElement("b");name.textContent=m.name+"#"+m.tag;copy.appendChild(name);
+      var role=document.createElement("small");role.textContent=m.k===p.hostKey?"HOST":"MEMBER";copy.appendChild(role);
+      row.appendChild(copy);members.appendChild(row);
+    });
+    if(p.hostKey===keyOf(account.user)){
+      var friends=section("INVITE A FRIEND");
+      var eligible=social.friends.filter(function(f){return !(p.members||[]).some(function(m){return m.k===keyOf(f)})});
+      if(!eligible.length){
+        var empty=document.createElement("p");empty.className="party-empty";empty.textContent="No friends available to invite.";friends.appendChild(empty);
+      }else eligible.forEach(function(f){
+        var row=document.createElement("div");row.className="party-row";
+        var copy=document.createElement("div");copy.className="party-copy";
+        var name=document.createElement("b");name.textContent=f.name+"#"+f.tag;copy.appendChild(name);
+        var status=document.createElement("small");status.textContent=f.online?"ONLINE":"OFFLINE";copy.appendChild(status);
+        row.appendChild(copy);
+        var btn=mkBtn("Invite","go sm",function(){sendPartyInvite(f,btn)});
+        row.appendChild(btn);friends.appendChild(row);
+      });
+      var end=mkBtn("End party","ghost",function(){
+        end.disabled=true;
+        api("/party/close",{method:"POST"}).then(function(){partyState.current=null;partyMessage("Party ended.");loadParty()})
+          .catch(function(e){partyMessage(netMsg(e),true)}).then(function(){end.disabled=false});
+      });
+      box.appendChild(end);
+    }else{
+      var note=document.createElement("p");note.className="party-empty";note.textContent="Only the party host can invite friends or end this party.";box.appendChild(note);
+    }
+  }else{
+    var create=mkBtn("Create party","go",function(){
+      create.disabled=true;
+      api("/party/create",{method:"POST"}).then(function(d){
+        partyState.current=d.party;drawParty();partyMessage("Party created. You can now invite friends.");
+      }).catch(function(e){partyMessage(netMsg(e),true)}).then(function(){create.disabled=false});
+    });
+    box.appendChild(create);
+    var empty=document.createElement("p");empty.className="party-state";empty.textContent="Create a party, then invite friends from your friends list.";box.appendChild(empty);
+  }
+  if(partyState.invites.length){
+    var inbox=section("PARTY INVITATIONS · "+partyState.invites.length);
+    partyState.invites.forEach(function(inv){
+      var row=document.createElement("div");row.className="party-row";
+      var copy=document.createElement("div");copy.className="party-copy";
+      var msg=document.createElement("b");msg.textContent=inv.from.name+"#"+inv.from.tag+" invited you to join their party.";copy.appendChild(msg);
+      var detail=document.createElement("small");detail.textContent="Invitation expires in 24 hours.";copy.appendChild(detail);
+      row.appendChild(copy);
+      var accept=mkBtn("Accept","go sm",function(){
+        accept.disabled=true;decline.disabled=true;
+        api("/party/respond",{method:"POST",body:{id:inv.id,action:"accept"}}).then(function(d){
+          partyState.current=d.party;partyMessage("You joined "+inv.from.name+"'s party.");loadParty();
+        }).catch(function(e){partyMessage(netMsg(e),true);loadParty()});
+      });
+      var decline=mkBtn("Decline","ghost sm",function(){
+        accept.disabled=true;decline.disabled=true;
+        api("/party/respond",{method:"POST",body:{id:inv.id,action:"decline"}}).then(loadParty)
+          .catch(function(e){partyMessage(netMsg(e),true);loadParty()});
+      });
+      row.appendChild(accept);row.appendChild(decline);inbox.appendChild(row);
+    });
+  }
+}
+function sendPartyInvite(friend,button){
+  button.disabled=true;
+  api("/party/invite",{method:"POST",body:{name:friend.name,tag:friend.tag}}).then(function(){
+    partyMessage("Invitation sent to "+friend.name+"#"+friend.tag+".");loadParty();
+  }).catch(function(e){partyMessage(netMsg(e),true)}).then(function(){button.disabled=false});
 }
 function friendAction(path,f,msg){
   api(path,{method:"POST",body:{name:f.name,tag:f.tag}})
@@ -1836,7 +1953,7 @@ function frRow(f,dot,status,cls){
 function drawFriends(){
   var box=$("am-lists");if(!social||!box)return;box.innerHTML="";
   function sec(t){var h=document.createElement("h3");h.className="fr-sec";h.textContent=t;box.appendChild(h)}
-  setBadge(social.incoming.length);
+  setBadge(social.incoming.length+(partyState.invites||[]).length);
   if(social.incoming.length){
     sec("Requests · "+social.incoming.length);
     social.incoming.forEach(function(f){
