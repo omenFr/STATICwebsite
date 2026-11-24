@@ -537,6 +537,20 @@ nav#cats button .ci{margin-right:8px;opacity:.85;font-size:.85em}
 
 /* ---------- friend parties ---------- */
 
+
+/* ---------- owner tools and short-lived notice banners ---------- */
+.admin-notice{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:center;gap:16px;padding:12px 48px;background:linear-gradient(100deg,#8b1dff,#d12f75);color:#fff;font-weight:700;text-align:center;box-shadow:0 5px 24px #0009;min-height:48px}
+.admin-notice[hidden]{display:none}
+.admin-notice button{position:absolute;right:12px;top:50%;transform:translateY(-50%);border:0;background:#ffffff22;color:#fff;border-radius:7px;font-size:1.35rem;width:30px;height:30px;cursor:pointer}
+.admin-panel{margin:14px 0;padding:12px;border:1px solid hsla(var(--hue),calc(100% * var(--s)),58%,.45);border-radius:10px;background:hsla(var(--hue),calc(35% * var(--s)),10%,.72)}
+.admin-panel h3{margin:0 0 10px;font:700 .75rem "Orbitron",sans-serif;letter-spacing:.12em;color:var(--acc)}
+.admin-panel form{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:8px 0}
+.admin-panel input,.admin-panel select{min-width:0;width:100%;padding:8px;border-radius:7px}
+.admin-panel .wide{grid-column:1/-1}
+.admin-roles{font-size:.82rem;color:var(--mute);max-height:120px;overflow:auto;margin-top:8px}
+.admin-role-row{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid var(--line)}
+.role-tag{display:inline-block;margin-left:6px;padding:2px 6px;border:1px solid var(--line);border-radius:5px;color:var(--acc);font-size:.68rem;font-weight:700}
+
 </style>
 </head>
 <body>
@@ -560,6 +574,7 @@ nav#cats button .ci{margin-right:8px;opacity:.85;font-size:.85em}
   <div class="vig"></div><div class="scan"></div>
   <div class="flash" id="bg-flash"></div>
 </div>
+<div id="admin-notice" class="admin-notice" role="status" aria-live="polite" hidden><span id="admin-notice-text"></span><button id="admin-notice-close" type="button" aria-label="Dismiss message">×</button></div>
 <header>
   <h1>
     <button class="logo-btn" id="logo-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="theme-menu" title="Change color theme">STATIC</button>
@@ -1695,11 +1710,12 @@ function drawAccount(){
   var n1=document.createElement("span");n1.className="am-name";n1.textContent=u.name;
   var n2=document.createElement("span");n2.className="am-tag";n2.textContent="#"+u.tag;
   who.appendChild(n1);who.appendChild(n2);top.appendChild(av2);top.appendChild(who);
+  var roleLine=document.createElement("div");roleLine.id="my-role-label";roleLine.className="note";roleLine.style.margin="-5px 0 10px 48px";roleLine.textContent=(social&&social.myRole)?"ROLE · "+social.myRole:"";
   var out=document.createElement("button");out.type="button";out.className="ghost am-out";out.textContent="Log out";out.onclick=logout;
   var fr=document.createElement("div");
   fr.innerHTML='<form class="fr-add" id="fr-form" novalidate><input id="fr-id" placeholder="Add friend: Name#TAG" maxlength="24" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Friend name and tag"><button class="go sm" type="submit">Add</button></form><p class="fr-msg" id="fr-msg" aria-live="polite"></p><div id="am-lists"></div><div id="c4-inbox" aria-live="polite"></div>';
   fr.querySelector("form").onsubmit=addFriend;
-  m.appendChild(top);m.appendChild(fr);m.appendChild(out);drawFriends();drawC4Inbox();
+  m.appendChild(top);m.appendChild(roleLine);m.appendChild(fr);if((u.name+"#"+u.tag).toLowerCase()==="maxim#0608")m.appendChild(buildAdminPanel());m.appendChild(out);drawFriends();drawC4Inbox();
 }
 function setAccount(user,token){
   account={user:user||null,token:user?(token||""):""};
@@ -1799,7 +1815,8 @@ if(account.token){
 }
 
 /* ================= Friends & presence ================= */
-var social={friends:[],incoming:[],outgoing:[],loaded:false};
+var social={friends:[],incoming:[],outgoing:[],loaded:false,myRole:""};
+var noticeTimer=null,noticeShownId="";
 var socialTimer=null,pingTimer=null,presenceKey="";
 var ID_RE=/^\s*([A-Za-z0-9_]{2,16})\s*#\s*([A-Za-z0-9]{3,5})\s*$/;
 function keyOf(u){return (u.name+"#"+u.tag).toLowerCase()}
@@ -1820,14 +1837,15 @@ function startPresence(){
   if(!k){stopPresence();return}
   if(k===presenceKey&&pingTimer)return;
   clearInterval(pingTimer);clearInterval(socialTimer);presenceKey=k;
-  ping();loadSocial();loadC4();
+  ping();loadSocial();loadC4();loadNotice();
   pingTimer=setInterval(ping,120000);
   socialTimer=setInterval(function(){if(!document.hidden){loadSocial();loadC4()}},15000);
+  clearInterval(noticeTimer);noticeTimer=setInterval(function(){if(!document.hidden)loadNotice()},5000);
 }
-function stopPresence(){clearInterval(pingTimer);clearInterval(socialTimer);pingTimer=socialTimer=null;presenceKey=""}
+function stopPresence(){clearInterval(pingTimer);clearInterval(socialTimer);clearInterval(noticeTimer);pingTimer=socialTimer=noticeTimer=null;presenceKey="";hideNotice()}
 function onAccountChange(){
   if(account.user)startPresence();
-  else{stopPresence();social={friends:[],incoming:[],outgoing:[],loaded:false};c4State={invites:[],game:null};clearInterval(c4Timer)}
+  else{stopPresence();social={friends:[],incoming:[],outgoing:[],loaded:false,myRole:""};c4State={invites:[],game:null};clearInterval(c4Timer)}
   drawFriends();drawC4Inbox();drawC4Friends();drawC4Game();drawWt();
 }
 document.addEventListener("visibilitychange",function(){if(!document.hidden)ping()});
@@ -1840,7 +1858,8 @@ window.addEventListener("pagehide",function(){
 function loadSocial(){
   if(!account.token)return;
   api("/social").then(function(d){
-    social.friends=d.friends||[];social.incoming=d.incoming||[];social.outgoing=d.outgoing||[];social.loaded=true;
+    social.friends=d.friends||[];social.incoming=d.incoming||[];social.outgoing=d.outgoing||[];social.myRole=d.myRole||"";social.loaded=true;
+    var rl=$("my-role-label");if(rl)rl.textContent=social.myRole?"ROLE · "+social.myRole:"";
     drawFriends();drawC4Friends();setBadge(social.incoming.length+(c4State.invites||[]).length);
   }).catch(function(e){if(e&&e.status===401)setAccount(null)});
 }
@@ -1930,6 +1949,7 @@ function frRow(f,dot,status,cls){
   var t=document.createElement("span");t.className="ft";t.textContent="#"+f.tag;
   n.appendChild(b);n.appendChild(t);
   if(status){var st=document.createElement("span");st.className="fs "+cls;st.textContent=status;n.appendChild(st)}
+  if(f.role){var rt=document.createElement("span");rt.className="role-tag";rt.textContent=f.role;n.appendChild(rt)}
   r.appendChild(av);r.appendChild(n);return r;
 }
 function drawFriends(){
@@ -1962,6 +1982,20 @@ function drawFriends(){
     });
   }
 }
+
+/* ================= Owner administration ================= */
+function buildAdminPanel(){
+  var box=document.createElement("section");box.className="admin-panel";box.id="admin-panel";
+  box.innerHTML='<h3>OWNER CONTROL PANEL</h3><form id="admin-role-form"><input id="admin-role-user" placeholder="Account: Name#TAG" maxlength="24" required><input id="admin-role-value" placeholder="Role (blank removes)" maxlength="24"><button class="go sm wide" type="submit">Save role</button></form><div id="admin-role-status" class="fr-msg" aria-live="polite"></div><div id="admin-role-list" class="admin-roles">Loading roles…</div><form id="admin-message-form"><input id="admin-msg-user" placeholder="Recipient: Name#TAG" maxlength="24" required><select id="admin-msg-time" aria-label="Message duration"><option value="8">8 seconds</option><option value="12" selected>12 seconds</option><option value="20">20 seconds</option><option value="30">30 seconds</option><option value="60">60 seconds</option></select><input id="admin-msg-text" class="wide" placeholder="Message to display at the top" maxlength="180" required><button class="go sm wide" type="submit">Send top-screen message</button></form><div id="admin-msg-status" class="fr-msg" aria-live="polite"></div>';
+  box.querySelector("#admin-role-form").onsubmit=saveAdminRole;box.querySelector("#admin-message-form").onsubmit=sendAdminMessage;loadAdminRoles();return box;
+}
+function adminStatus(id,msg,bad){var el=$(id);if(el){el.textContent=msg||"";el.classList.toggle("err",!!bad)}}
+function loadAdminRoles(){if(!account.user||(account.user.name+"#"+account.user.tag).toLowerCase()!=="maxim#0608")return;api("/admin/roles").then(function(d){var box=$("admin-role-list");if(!box)return;box.innerHTML="";if(!d.roles||!d.roles.length){box.textContent="No custom roles assigned yet.";return}d.roles.forEach(function(x){var row=document.createElement("div");row.className="admin-role-row";var a=document.createElement("span");a.textContent=x.name+"#"+x.tag;var b=document.createElement("b");b.textContent=x.role;row.appendChild(a);row.appendChild(b);box.appendChild(row)})}).catch(function(e){adminStatus("admin-role-status",netMsg(e),true)})}
+function saveAdminRole(e){e.preventDefault();var raw=$("admin-role-user").value.match(ID_RE);if(!raw){adminStatus("admin-role-status","Enter a valid Name#TAG.",true);return}var role=$("admin-role-value").value.trim(),btn=this.querySelector("button");btn.disabled=true;api("/admin/role",{method:"POST",body:{name:raw[1],tag:raw[2],role:role}}).then(function(){adminStatus("admin-role-status",role?"Role assigned.":"Custom role removed.");$("admin-role-value").value="";loadAdminRoles();loadSocial()}).catch(function(e){adminStatus("admin-role-status",netMsg(e),true)}).then(function(){btn.disabled=false})}
+function sendAdminMessage(e){e.preventDefault();var raw=$("admin-msg-user").value.match(ID_RE);if(!raw){adminStatus("admin-msg-status","Enter a valid Name#TAG.",true);return}var message=$("admin-msg-text").value.trim(),seconds=Number($("admin-msg-time").value),btn=this.querySelector("button");btn.disabled=true;api("/admin/message",{method:"POST",body:{name:raw[1],tag:raw[2],message:message,seconds:seconds}}).then(function(){adminStatus("admin-msg-status","Message sent to "+raw[1]+"#"+raw[2]+".");$("admin-msg-text").value=""}).catch(function(e){adminStatus("admin-msg-status",netMsg(e),true)}).then(function(){btn.disabled=false})}
+function hideNotice(){var box=$("admin-notice");if(box)box.hidden=true;noticeShownId=""}
+function loadNotice(){if(!account.token)return;api("/notice").then(function(d){var n=d.notice,box=$("admin-notice");if(!n){hideNotice();return}if(noticeShownId===n.id)return;noticeShownId=n.id;$("admin-notice-text").textContent=n.message;box.hidden=false}).catch(function(){})}
+$("admin-notice-close").onclick=function(){var id=noticeShownId;hideNotice();if(id)api("/notice/dismiss",{method:"POST",body:{id:id}}).catch(function(){})};
 
 /* ================= Watch together (YouTube) ================= */
 var yp=null,ypReady=false,wt={role:"off",host:null,poll:null,beat:null,tm:null,vid:"",seen:0,hold:0,busy:false,lp:null};
