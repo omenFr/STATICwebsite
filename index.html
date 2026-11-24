@@ -432,7 +432,7 @@ nav#cats button .ci{margin-right:8px;opacity:.85;font-size:.85em}
 .acct-menu{position:absolute;right:0;top:calc(100% + 12px);z-index:60;min-width:240px;padding:16px;background:hsla(var(--hue),calc(40% * var(--s)),4%,.97);border:1px solid hsla(var(--hue),calc(100% * var(--s)),58%,.45);border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.7),0 0 26px hsla(var(--hue),calc(100% * var(--s)),58%,.3);display:none;animation:in .18s ease both}
 .acct-menu.open{display:block}
 .am-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.am-name{display:block;font:800 1.05rem "Orbitron",sans-serif;letter-spacing:.06em;word-break:break-all}
+.am-name{display:block;font:800 1.05rem "Orbitron",sans-serif;letter-spacing:.06em;word-break:break-all}.am-name .role-tag{vertical-align:middle;margin-left:6px}
 .am-tag{color:var(--mute);font-weight:700}
 .am-sub{margin:0 0 14px;color:var(--mute);font-size:.92rem}
 .am-out{width:100%;justify-content:center}
@@ -474,6 +474,7 @@ nav#cats button .ci{margin-right:8px;opacity:.85;font-size:.85em}
 .frow:hover{border-color:hsla(var(--hue),calc(100% * var(--s)),58%,.65);transform:translateX(3px)}
 .frow.sel{border-color:var(--acc);background:linear-gradient(135deg,hsla(var(--hue),calc(100% * var(--s)),58%,.22),hsla(var(--hue),calc(100% * var(--s)),45%,.08));box-shadow:0 0 16px hsla(var(--hue),calc(100% * var(--s)),58%,.3)}
 .fn,.rn{display:flex;flex-direction:column;min-width:0;flex:1;line-height:1.2}
+.fn .name-line{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}.fn .name-line b{max-width:100%}
 .fn b,.rn b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ft{color:var(--mute);font-weight:600}
 .fs{font:700 .66rem "Orbitron",sans-serif;letter-spacing:.12em;color:var(--mute)}
@@ -549,7 +550,15 @@ nav#cats button .ci{margin-right:8px;opacity:.85;font-size:.85em}
 .admin-panel .wide{grid-column:1/-1}
 .admin-roles{font-size:.82rem;color:var(--mute);max-height:120px;overflow:auto;margin-top:8px}
 .admin-role-row{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid var(--line)}
-.role-tag{display:inline-block;margin-left:6px;padding:2px 6px;border:1px solid var(--line);border-radius:5px;color:var(--acc);font-size:.68rem;font-weight:700}
+.role-tag{display:inline-flex;align-items:center;margin:0;padding:1px 6px;border:1px solid var(--line);border-radius:5px;color:var(--acc);font:700 .62rem/1.5 "Orbitron",sans-serif;letter-spacing:.04em;white-space:nowrap}
+.admin-shell{max-width:760px;padding:16px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(145deg,hsla(var(--hue),45%,10%,.9),#080608);box-shadow:0 12px 35px #0007}
+.admin-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.admin-top h2{margin:0;color:var(--acc);font:800 1rem "Orbitron",sans-serif;letter-spacing:.12em}
+.admin-search{display:flex;gap:8px;margin:12px 0}.admin-search input{min-width:0;padding:9px 11px}
+.admin-user{padding:12px;border:1px solid var(--line);border-radius:10px;background:#ffffff05}.admin-user[hidden],.admin-actions[hidden]{display:none}
+.admin-user-head{display:flex;align-items:center;gap:9px;margin-bottom:10px}.admin-user-head strong{font-size:1.05rem}.admin-user-head small{color:var(--mute)}
+.admin-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.admin-action{min-width:0;padding:10px;border:1px solid var(--line);border-radius:9px;background:#ffffff06}.admin-action h3{margin:0 0 8px;color:var(--acc);font:700 .68rem "Orbitron",sans-serif;letter-spacing:.1em}.admin-action form{display:flex;gap:6px;flex-wrap:wrap;margin:0}.admin-action input,.admin-action select{min-width:0;padding:7px 9px}.admin-action input{flex:1 1 110px}.admin-action .go{padding:7px 11px}.admin-status{min-height:1.2em;margin:8px 0 0;color:var(--mute);font-size:.85rem}
+@media(max-width:560px){.admin-actions{grid-template-columns:1fr}.admin-search{align-items:stretch}.admin-search .go{padding:8px 12px}}
 
 </style>
 </head>
@@ -700,6 +709,12 @@ nav#cats button .ci{margin-right:8px;opacity:.85;font-size:.85em}
     </div>
   </section>
 
+  <!-- OWNER ADMIN -->
+  <section id="admin" hidden>
+    <div class="game-head"><div><h2 class="game-title">ADMIN CONSOLE</h2><p class="note">Manage a player by searching their account.</p></div></div>
+    <div id="admin-root"></div>
+  </section>
+
   <!-- INFO -->
   <section id="info" hidden>
     <div class="game-head">
@@ -805,7 +820,8 @@ var CATS=[
   {id:"home",label:"Home",icon:"⌂",items:["home"]},
   {id:"watch",label:"Watch",icon:"▶",items:["twitch","youtube"]},
   {id:"play",label:"Play",icon:"◈",items:["mines","blocks","connect4"]},
-  {id:"links",label:"Links",icon:"↗",items:["info"]}
+  {id:"links",label:"Links",icon:"↗",items:["info"]},
+  {id:"admin",label:"Admin",icon:"⌘",items:["admin"]}
 ];
 var TOOLS={
   home:{label:"Home"},
@@ -814,7 +830,8 @@ var TOOLS={
   mines:{label:"Minesweeper",icon:"💣",desc:"Three difficulties, flags, chording and best times."},
   blocks:{label:"Block Blast",icon:"🧱",desc:"Drag shapes, clear lines, chain combos."},
   connect4:{label:"Connect Four",icon:"🔴",desc:"Challenge a friend to a private 1v1 match."},
-  info:{label:"Links",icon:"🔗",desc:"Your quick links. Add your own."}
+  info:{label:"Links",icon:"🔗",desc:"Your quick links. Add your own."},
+  admin:{label:"Admin",icon:"⌘",desc:"Manage player roles and screen messages."}
 };
 var catNav=$("cats"),subNav=$("subnav"),catBtns=[];
 function catOf(name){for(var i=0;i<CATS.length;i++)if(CATS[i].items.indexOf(name)>=0)return CATS[i];return CATS[0]}
@@ -824,6 +841,7 @@ CATS.forEach(function(c){
   var ic=document.createElement("span");ic.className="ci";ic.setAttribute("aria-hidden","true");ic.textContent=c.icon;
   b.appendChild(ic);b.appendChild(document.createTextNode(c.label));
   b.onclick=function(){show(lastIn(c))};
+  if(c.id==="admin")b.hidden=true;
   catNav.appendChild(b);catBtns.push(b);
 });
 function arrows(box){
@@ -866,7 +884,7 @@ function drawHome(){
   $("hero-date").textContent=now.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"}).toUpperCase();
   var box=$("tiles");box.innerHTML="";
   CATS.forEach(function(c){
-    if(c.id==="home")return;
+    if(c.id==="home"||(c.id==="admin"&&!(account.user&&(account.user.name+"#"+account.user.tag).toLowerCase()==="maxim#0608")))return;
     var grp=document.createElement("div");grp.className="tgroup";
     var t=document.createElement("h3");t.className="sub";t.textContent=c.label.toUpperCase();
     var grid=document.createElement("div");grid.className="tiles";
@@ -884,7 +902,10 @@ function drawHome(){
   });
 }
 function show(name){
-  if(!TOOLS[name])name="home";
+  var owner=!!(account.user&&(account.user.name+"#"+account.user.tag).toLowerCase()==="maxim#0608");
+  var adminBtn=catNav.querySelector("[data-cat=\"admin\"]");if(adminBtn)adminBtn.hidden=!owner;
+  if(name==="admin"&&!owner)name="home";
+  if(!TOOLS[name]&&name!=="admin")name="home";
   var cat=catOf(name);
   catBtns.forEach(function(b){b.setAttribute("aria-selected",String(b.dataset.cat===cat.id))});
   buildSubnav(cat,name);
@@ -892,6 +913,7 @@ function show(name){
   if(name==="home")drawHome();
   if(name==="mines"||name==="blocks")drawLB(name);
   if(name==="connect4"){drawC4Friends();loadC4()}
+  if(name==="admin"){if(!$("admin-root").dataset.ready){buildAdminPanel();$("admin-root").dataset.ready="1"}}
   store.set("static-tab",name);store.set("static-last-"+cat.id,name);
 }
 
@@ -1710,12 +1732,12 @@ function drawAccount(){
   var n1=document.createElement("span");n1.className="am-name";n1.textContent=u.name;
   var n2=document.createElement("span");n2.className="am-tag";n2.textContent="#"+u.tag;
   who.appendChild(n1);who.appendChild(n2);top.appendChild(av2);top.appendChild(who);
-  var roleLine=document.createElement("div");roleLine.id="my-role-label";roleLine.className="note";roleLine.style.margin="-5px 0 10px 48px";roleLine.textContent=(social&&social.myRole)?"ROLE · "+social.myRole:"";
   var out=document.createElement("button");out.type="button";out.className="ghost am-out";out.textContent="Log out";out.onclick=logout;
   var fr=document.createElement("div");
   fr.innerHTML='<form class="fr-add" id="fr-form" novalidate><input id="fr-id" placeholder="Add friend: Name#TAG" maxlength="24" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Friend name and tag"><button class="go sm" type="submit">Add</button></form><p class="fr-msg" id="fr-msg" aria-live="polite"></p><div id="am-lists"></div><div id="c4-inbox" aria-live="polite"></div>';
   fr.querySelector("form").onsubmit=addFriend;
-  m.appendChild(top);m.appendChild(roleLine);m.appendChild(fr);if((u.name+"#"+u.tag).toLowerCase()==="maxim#0608")m.appendChild(buildAdminPanel());m.appendChild(out);drawFriends();drawC4Inbox();
+  if(social&&social.myRole){var ownRole=document.createElement("span");ownRole.className="role-tag";ownRole.textContent=social.myRole;n1.appendChild(ownRole)}
+  m.appendChild(top);m.appendChild(fr);m.appendChild(out);drawFriends();drawC4Inbox();
 }
 function setAccount(user,token){
   account={user:user||null,token:user?(token||""):""};
@@ -1846,7 +1868,7 @@ function stopPresence(){clearInterval(pingTimer);clearInterval(socialTimer);clea
 function onAccountChange(){
   if(account.user)startPresence();
   else{stopPresence();social={friends:[],incoming:[],outgoing:[],loaded:false,myRole:""};c4State={invites:[],game:null};clearInterval(c4Timer)}
-  drawFriends();drawC4Inbox();drawC4Friends();drawC4Game();drawWt();
+  drawFriends();drawC4Inbox();drawC4Friends();drawC4Game();drawWt();show(store.get("static-tab","home"));
 }
 document.addEventListener("visibilitychange",function(){if(!document.hidden)ping()});
 window.addEventListener("pageshow",function(e){if(e.persisted)ping()});
@@ -1859,7 +1881,7 @@ function loadSocial(){
   if(!account.token)return;
   api("/social").then(function(d){
     social.friends=d.friends||[];social.incoming=d.incoming||[];social.outgoing=d.outgoing||[];social.myRole=d.myRole||"";social.loaded=true;
-    var rl=$("my-role-label");if(rl)rl.textContent=social.myRole?"ROLE · "+social.myRole:"";
+    drawAccount();
     drawFriends();drawC4Friends();setBadge(social.incoming.length+(c4State.invites||[]).length);
   }).catch(function(e){if(e&&e.status===401)setAccount(null)});
 }
@@ -1945,11 +1967,12 @@ function frRow(f,dot,status,cls){
   var av=document.createElement("span");makeAvatar(f,av);
   if(dot!==null){var w=document.createElement("span");w.className="avwrap";w.appendChild(av);var d=document.createElement("span");d.className="pdot"+(dot?" on":"");w.appendChild(d);av=w}
   var n=document.createElement("span");n.className="fn";
-  var b=document.createElement("b");b.textContent=f.name;
+  var line=document.createElement("span");line.className="name-line";
+  var b=document.createElement("b");b.textContent=f.name;line.appendChild(b);
+  if(f.role){var rt=document.createElement("span");rt.className="role-tag";rt.textContent=f.role;line.appendChild(rt)}
   var t=document.createElement("span");t.className="ft";t.textContent="#"+f.tag;
-  n.appendChild(b);n.appendChild(t);
+  n.appendChild(line);n.appendChild(t);
   if(status){var st=document.createElement("span");st.className="fs "+cls;st.textContent=status;n.appendChild(st)}
-  if(f.role){var rt=document.createElement("span");rt.className="role-tag";rt.textContent=f.role;n.appendChild(rt)}
   r.appendChild(av);r.appendChild(n);return r;
 }
 function drawFriends(){
@@ -1984,15 +2007,18 @@ function drawFriends(){
 }
 
 /* ================= Owner administration ================= */
+var adminSelected=null;
 function buildAdminPanel(){
-  var box=document.createElement("section");box.className="admin-panel";box.id="admin-panel";
-  box.innerHTML='<h3>OWNER CONTROL PANEL</h3><form id="admin-role-form"><input id="admin-role-user" placeholder="Account: Name#TAG" maxlength="24" required><input id="admin-role-value" placeholder="Role (blank removes)" maxlength="24"><button class="go sm wide" type="submit">Save role</button></form><div id="admin-role-status" class="fr-msg" aria-live="polite"></div><div id="admin-role-list" class="admin-roles">Loading roles…</div><form id="admin-message-form"><input id="admin-msg-user" placeholder="Recipient: Name#TAG" maxlength="24" required><select id="admin-msg-time" aria-label="Message duration"><option value="8">8 seconds</option><option value="12" selected>12 seconds</option><option value="20">20 seconds</option><option value="30">30 seconds</option><option value="60">60 seconds</option></select><input id="admin-msg-text" class="wide" placeholder="Message to display at the top" maxlength="180" required><button class="go sm wide" type="submit">Send top-screen message</button></form><div id="admin-msg-status" class="fr-msg" aria-live="polite"></div>';
-  box.querySelector("#admin-role-form").onsubmit=saveAdminRole;box.querySelector("#admin-message-form").onsubmit=sendAdminMessage;loadAdminRoles();return box;
+  var root=$("admin-root");if(!root)return;
+  root.innerHTML='<div class="admin-shell"><div class="admin-top"><h2>PLAYER TOOLS</h2><span class="role-tag">OWNER</span></div><form class="admin-search" id="admin-search-form"><input id="admin-search-id" placeholder="Search account · Name#TAG" maxlength="24" autocomplete="off" required><button class="go sm" type="submit">Search</button></form><p id="admin-search-status" class="admin-status" aria-live="polite">Search for a player to see available actions.</p><div id="admin-user" class="admin-user" hidden><div class="admin-user-head"><strong id="admin-user-name"></strong><small id="admin-user-tag"></small><span id="admin-user-role" class="role-tag" hidden></span></div><div class="admin-actions"><div class="admin-action"><h3>PLAYER ROLE</h3><form id="admin-role-form"><input id="admin-role-value" placeholder="Role name (blank removes)" maxlength="24"><button class="go sm" type="submit">Save</button></form></div><div class="admin-action"><h3>SCREEN MESSAGE</h3><form id="admin-message-form"><input id="admin-msg-text" placeholder="Message to show at top" maxlength="180" required><select id="admin-msg-time" aria-label="Message duration"><option value="8">8s</option><option value="12" selected>12s</option><option value="20">20s</option><option value="30">30s</option><option value="60">60s</option></select><button class="go sm" type="submit">Send</button></form></div></div><p id="admin-action-status" class="admin-status" aria-live="polite"></p></div></div>';
+  $("admin-search-form").onsubmit=searchAdminUser;
+  $("admin-role-form").onsubmit=saveAdminRole;
+  $("admin-message-form").onsubmit=sendAdminMessage;
 }
 function adminStatus(id,msg,bad){var el=$(id);if(el){el.textContent=msg||"";el.classList.toggle("err",!!bad)}}
-function loadAdminRoles(){if(!account.user||(account.user.name+"#"+account.user.tag).toLowerCase()!=="maxim#0608")return;api("/admin/roles").then(function(d){var box=$("admin-role-list");if(!box)return;box.innerHTML="";if(!d.roles||!d.roles.length){box.textContent="No custom roles assigned yet.";return}d.roles.forEach(function(x){var row=document.createElement("div");row.className="admin-role-row";var a=document.createElement("span");a.textContent=x.name+"#"+x.tag;var b=document.createElement("b");b.textContent=x.role;row.appendChild(a);row.appendChild(b);box.appendChild(row)})}).catch(function(e){adminStatus("admin-role-status",netMsg(e),true)})}
-function saveAdminRole(e){e.preventDefault();var raw=$("admin-role-user").value.match(ID_RE);if(!raw){adminStatus("admin-role-status","Enter a valid Name#TAG.",true);return}var role=$("admin-role-value").value.trim(),btn=this.querySelector("button");btn.disabled=true;api("/admin/role",{method:"POST",body:{name:raw[1],tag:raw[2],role:role}}).then(function(){adminStatus("admin-role-status",role?"Role assigned.":"Custom role removed.");$("admin-role-value").value="";loadAdminRoles();loadSocial()}).catch(function(e){adminStatus("admin-role-status",netMsg(e),true)}).then(function(){btn.disabled=false})}
-function sendAdminMessage(e){e.preventDefault();var raw=$("admin-msg-user").value.match(ID_RE);if(!raw){adminStatus("admin-msg-status","Enter a valid Name#TAG.",true);return}var message=$("admin-msg-text").value.trim(),seconds=Number($("admin-msg-time").value),btn=this.querySelector("button");btn.disabled=true;api("/admin/message",{method:"POST",body:{name:raw[1],tag:raw[2],message:message,seconds:seconds}}).then(function(){adminStatus("admin-msg-status","Message sent to "+raw[1]+"#"+raw[2]+".");$("admin-msg-text").value=""}).catch(function(e){adminStatus("admin-msg-status",netMsg(e),true)}).then(function(){btn.disabled=false})}
+function searchAdminUser(e){e.preventDefault();var raw=$("admin-search-id").value.match(ID_RE);if(!raw){adminStatus("admin-search-status","Enter a valid Name#TAG.",true);return}var btn=this.querySelector("button");btn.disabled=true;adminStatus("admin-search-status","Searching…");api("/admin/user?name="+encodeURIComponent(raw[1])+"&tag="+encodeURIComponent(raw[2])).then(function(d){adminSelected=d.user;$("admin-user-name").textContent=d.user.name;$("admin-user-tag").textContent="#"+d.user.tag;var role=$("admin-user-role");role.textContent=d.user.role||"No role";role.hidden=!d.user.role;$("admin-role-value").value=d.user.role||"";$("admin-user").hidden=false;adminStatus("admin-search-status","Player found.");adminStatus("admin-action-status","")}).catch(function(err){adminSelected=null;$("admin-user").hidden=true;adminStatus("admin-search-status",netMsg(err),true)}).then(function(){btn.disabled=false})}
+function saveAdminRole(e){e.preventDefault();if(!adminSelected)return;var role=$("admin-role-value").value.trim(),btn=this.querySelector("button");btn.disabled=true;api("/admin/role",{method:"POST",body:{name:adminSelected.name,tag:adminSelected.tag,role:role}}).then(function(d){adminSelected.role=d.role||"";var badge=$("admin-user-role");badge.textContent=d.role||"No role";badge.hidden=!d.role;adminStatus("admin-action-status",d.role?"Role updated.":"Role removed.");loadSocial()}).catch(function(err){adminStatus("admin-action-status",netMsg(err),true)}).then(function(){btn.disabled=false})}
+function sendAdminMessage(e){e.preventDefault();if(!adminSelected)return;var message=$("admin-msg-text").value.trim(),seconds=Number($("admin-msg-time").value),btn=this.querySelector("button");btn.disabled=true;api("/admin/message",{method:"POST",body:{name:adminSelected.name,tag:adminSelected.tag,message:message,seconds:seconds}}).then(function(){adminStatus("admin-action-status","Message sent to "+adminSelected.name+".");$("admin-msg-text").value=""}).catch(function(err){adminStatus("admin-action-status",netMsg(err),true)}).then(function(){btn.disabled=false})}
 function hideNotice(){var box=$("admin-notice");if(box)box.hidden=true;noticeShownId=""}
 function loadNotice(){if(!account.token)return;api("/notice").then(function(d){var n=d.notice,box=$("admin-notice");if(!n){hideNotice();return}if(noticeShownId===n.id)return;noticeShownId=n.id;$("admin-notice-text").textContent=n.message;box.hidden=false}).catch(function(){})}
 $("admin-notice-close").onclick=function(){var id=noticeShownId;hideNotice();if(id)api("/notice/dismiss",{method:"POST",body:{id:id}}).catch(function(){})};
