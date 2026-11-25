@@ -432,7 +432,7 @@ nav#cats button .ci{margin-right:8px;opacity:.85;font-size:.85em}
 .acct-menu{position:absolute;right:0;top:calc(100% + 12px);z-index:60;min-width:240px;padding:16px;background:hsla(var(--hue),calc(40% * var(--s)),4%,.97);border:1px solid hsla(var(--hue),calc(100% * var(--s)),58%,.45);border-radius:14px;box-shadow:0 14px 40px rgba(0,0,0,.7),0 0 26px hsla(var(--hue),calc(100% * var(--s)),58%,.3);display:none;animation:in .18s ease both}
 .acct-menu.open{display:block}
 .am-top{display:flex;align-items:center;gap:12px;margin-bottom:12px}
-.am-name{display:block;font:800 1.05rem "Orbitron",sans-serif;letter-spacing:.06em;word-break:break-all}.am-name .role-tag{vertical-align:middle;margin-left:6px}
+.am-name{display:block;font:800 1.05rem "Orbitron",sans-serif;letter-spacing:.06em;word-break:break-all}
 .am-tag{color:var(--mute);font-weight:700}
 .am-sub{margin:0 0 14px;color:var(--mute);font-size:.92rem}
 .am-out{width:100%;justify-content:center}
@@ -539,26 +539,10 @@ nav#cats button .ci{margin-right:8px;opacity:.85;font-size:.85em}
 /* ---------- friend parties ---------- */
 
 
-/* ---------- owner tools and short-lived notice banners ---------- */
-.admin-notice{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:center;gap:16px;padding:12px 48px;background:linear-gradient(100deg,#8b1dff,#d12f75);color:#fff;font-weight:700;text-align:center;box-shadow:0 5px 24px #0009;min-height:48px}
-.admin-notice[hidden]{display:none}
-.admin-notice button{position:absolute;right:12px;top:50%;transform:translateY(-50%);border:0;background:#ffffff22;color:#fff;border-radius:7px;font-size:1.35rem;width:30px;height:30px;cursor:pointer}
-.admin-panel{margin:14px 0;padding:12px;border:1px solid hsla(var(--hue),calc(100% * var(--s)),58%,.45);border-radius:10px;background:hsla(var(--hue),calc(35% * var(--s)),10%,.72)}
-.admin-panel h3{margin:0 0 10px;font:700 .75rem "Orbitron",sans-serif;letter-spacing:.12em;color:var(--acc)}
-.admin-panel form{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:8px 0}
-.admin-panel input,.admin-panel select{min-width:0;width:100%;padding:8px;border-radius:7px}
-.admin-panel .wide{grid-column:1/-1}
-.admin-roles{font-size:.82rem;color:var(--mute);max-height:120px;overflow:auto;margin-top:8px}
-.admin-role-row{display:flex;justify-content:space-between;gap:8px;padding:4px 0;border-bottom:1px solid var(--line)}
-.role-tag{display:inline-flex;align-items:center;margin:0;padding:1px 6px;border:1px solid var(--line);border-radius:5px;color:var(--acc);font:700 .62rem/1.5 "Orbitron",sans-serif;letter-spacing:.04em;white-space:nowrap}
-.admin-shell{max-width:760px;padding:16px;border:1px solid var(--line);border-radius:14px;background:linear-gradient(145deg,hsla(var(--hue),45%,10%,.9),#080608);box-shadow:0 12px 35px #0007}
-.admin-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
-.admin-top h2{margin:0;color:var(--acc);font:800 1rem "Orbitron",sans-serif;letter-spacing:.12em}
-.admin-search{display:flex;gap:8px;margin:12px 0}.admin-search input{min-width:0;padding:9px 11px}
-.admin-user{padding:12px;border:1px solid var(--line);border-radius:10px;background:#ffffff05}.admin-user[hidden],.admin-actions[hidden]{display:none}
-.admin-user-head{display:flex;align-items:center;gap:9px;margin-bottom:10px}.admin-user-head strong{font-size:1.05rem}.admin-user-head small{color:var(--mute)}
-.admin-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px}.admin-action{min-width:0;padding:10px;border:1px solid var(--line);border-radius:9px;background:#ffffff06}.admin-action h3{margin:0 0 8px;color:var(--acc);font:700 .68rem "Orbitron",sans-serif;letter-spacing:.1em}.admin-action form{display:flex;gap:6px;flex-wrap:wrap;margin:0}.admin-action input,.admin-action select{min-width:0;padding:7px 9px}.admin-action input{flex:1 1 110px}.admin-action .go{padding:7px 11px}.admin-status{min-height:1.2em;margin:8px 0 0;color:var(--mute);font-size:.85rem}
-@media(max-width:560px){.admin-actions{grid-template-columns:1fr}.admin-search{align-items:stretch}.admin-search .go{padding:8px 12px}}
+/* ---------- role tag (Terraner etc.) ---------- */
+.role-tag{--rt:hsl(var(--hue),calc(100% * var(--s)),66%);display:inline-flex;align-items:center;gap:5px;margin:0;padding:2px 8px 2px 6px;border-radius:999px;border:1px solid hsla(var(--hue),calc(100% * var(--s)),58%,.5);background:linear-gradient(135deg,hsla(var(--hue),calc(100% * var(--s)),58%,.20),hsla(var(--hue),calc(100% * var(--s)),58%,.05));color:var(--rt);font:800 .56rem/1.5 "Orbitron",sans-serif;letter-spacing:.14em;text-transform:uppercase;white-space:nowrap;vertical-align:middle;box-shadow:0 0 10px hsla(var(--hue),calc(100% * var(--s)),58%,.18)}
+.role-tag::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--rt);box-shadow:0 0 6px var(--rt)}
+.am-role{margin-left:8px}
 
 </style>
 </head>
@@ -583,7 +567,6 @@ nav#cats button .ci{margin-right:8px;opacity:.85;font-size:.85em}
   <div class="vig"></div><div class="scan"></div>
   <div class="flash" id="bg-flash"></div>
 </div>
-<div id="admin-notice" class="admin-notice" role="status" aria-live="polite" hidden><span id="admin-notice-text"></span><button id="admin-notice-close" type="button" aria-label="Dismiss message">×</button></div>
 <header>
   <h1>
     <button class="logo-btn" id="logo-btn" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="theme-menu" title="Change color theme">STATIC</button>
@@ -709,12 +692,6 @@ nav#cats button .ci{margin-right:8px;opacity:.85;font-size:.85em}
     </div>
   </section>
 
-  <!-- OWNER ADMIN -->
-  <section id="admin" hidden>
-    <div class="game-head"><div><h2 class="game-title">ADMIN CONSOLE</h2><p class="note">Manage a player by searching their account.</p></div></div>
-    <div id="admin-root"></div>
-  </section>
-
   <!-- INFO -->
   <section id="info" hidden>
     <div class="game-head">
@@ -820,8 +797,7 @@ var CATS=[
   {id:"home",label:"Home",icon:"⌂",items:["home"]},
   {id:"watch",label:"Watch",icon:"▶",items:["twitch","youtube"]},
   {id:"play",label:"Play",icon:"◈",items:["mines","blocks","connect4"]},
-  {id:"links",label:"Links",icon:"↗",items:["info"]},
-  {id:"admin",label:"Admin",icon:"⌘",items:["admin"]}
+  {id:"links",label:"Links",icon:"↗",items:["info"]}
 ];
 var TOOLS={
   home:{label:"Home"},
@@ -830,8 +806,7 @@ var TOOLS={
   mines:{label:"Minesweeper",icon:"💣",desc:"Three difficulties, flags, chording and best times."},
   blocks:{label:"Block Blast",icon:"🧱",desc:"Drag shapes, clear lines, chain combos."},
   connect4:{label:"Connect Four",icon:"🔴",desc:"Challenge a friend to a private 1v1 match."},
-  info:{label:"Links",icon:"🔗",desc:"Your quick links. Add your own."},
-  admin:{label:"Admin",icon:"⌘",desc:"Manage player roles and screen messages."}
+  info:{label:"Links",icon:"🔗",desc:"Your quick links. Add your own."}
 };
 var catNav=$("cats"),subNav=$("subnav"),catBtns=[];
 function catOf(name){for(var i=0;i<CATS.length;i++)if(CATS[i].items.indexOf(name)>=0)return CATS[i];return CATS[0]}
@@ -841,7 +816,6 @@ CATS.forEach(function(c){
   var ic=document.createElement("span");ic.className="ci";ic.setAttribute("aria-hidden","true");ic.textContent=c.icon;
   b.appendChild(ic);b.appendChild(document.createTextNode(c.label));
   b.onclick=function(){show(lastIn(c))};
-  if(c.id==="admin")b.hidden=true;
   catNav.appendChild(b);catBtns.push(b);
 });
 function arrows(box){
@@ -884,7 +858,7 @@ function drawHome(){
   $("hero-date").textContent=now.toLocaleDateString(undefined,{weekday:"long",month:"long",day:"numeric"}).toUpperCase();
   var box=$("tiles");box.innerHTML="";
   CATS.forEach(function(c){
-    if(c.id==="home"||(c.id==="admin"&&!(account.user&&(account.user.name+"#"+account.user.tag).toLowerCase()==="maxim#0608")))return;
+    if(c.id==="home")return;
     var grp=document.createElement("div");grp.className="tgroup";
     var t=document.createElement("h3");t.className="sub";t.textContent=c.label.toUpperCase();
     var grid=document.createElement("div");grid.className="tiles";
@@ -902,10 +876,7 @@ function drawHome(){
   });
 }
 function show(name){
-  var owner=!!(account.user&&(account.user.name+"#"+account.user.tag).toLowerCase()==="maxim#0608");
-  var adminBtn=catNav.querySelector("[data-cat=\"admin\"]");if(adminBtn)adminBtn.hidden=!owner;
-  if(name==="admin"&&!owner)name="home";
-  if(!TOOLS[name]&&name!=="admin")name="home";
+  if(!TOOLS[name])name="home";
   var cat=catOf(name);
   catBtns.forEach(function(b){b.setAttribute("aria-selected",String(b.dataset.cat===cat.id))});
   buildSubnav(cat,name);
@@ -913,7 +884,6 @@ function show(name){
   if(name==="home")drawHome();
   if(name==="mines"||name==="blocks")drawLB(name);
   if(name==="connect4"){drawC4Friends();loadC4()}
-  if(name==="admin"){if(!$("admin-root").dataset.ready){buildAdminPanel();$("admin-root").dataset.ready="1"}}
   store.set("static-tab",name);store.set("static-last-"+cat.id,name);
 }
 
@@ -1715,7 +1685,8 @@ function logout(){
 }
 function drawAccount(){
   var b=$("acct-btn"),m=$("acct-menu");
-  b.innerHTML="";m.innerHTML="";closeAcctMenu();
+  b.innerHTML="";m.innerHTML="";
+  if(!account.user)closeAcctMenu();
   if(!account.user){
     b.className="acct out";b.textContent="SIGN IN";b.setAttribute("aria-label","Sign in or create an account");return;
   }
@@ -1731,20 +1702,22 @@ function drawAccount(){
   var who=document.createElement("div");
   var n1=document.createElement("span");n1.className="am-name";n1.textContent=u.name;
   var n2=document.createElement("span");n2.className="am-tag";n2.textContent="#"+u.tag;
-  who.appendChild(n1);who.appendChild(n2);top.appendChild(av2);top.appendChild(who);
+  var slot=document.createElement("span");slot.className="am-role";slot.id="am-role-slot";
+  who.appendChild(n1);who.appendChild(n2);who.appendChild(slot);top.appendChild(av2);top.appendChild(who);
   var out=document.createElement("button");out.type="button";out.className="ghost am-out";out.textContent="Log out";out.onclick=logout;
   var fr=document.createElement("div");
   fr.innerHTML='<form class="fr-add" id="fr-form" novalidate><input id="fr-id" placeholder="Add friend: Name#TAG" maxlength="24" autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Friend name and tag"><button class="go sm" type="submit">Add</button></form><p class="fr-msg" id="fr-msg" aria-live="polite"></p><div id="am-lists"></div><div id="c4-inbox" aria-live="polite"></div>';
   fr.querySelector("form").onsubmit=addFriend;
-  if(social&&social.myRole){var ownRole=document.createElement("span");ownRole.className="role-tag";ownRole.textContent=social.myRole;n1.appendChild(ownRole)}
-  m.appendChild(top);m.appendChild(fr);m.appendChild(out);drawFriends();drawC4Inbox();
+  m.appendChild(top);m.appendChild(fr);m.appendChild(out);drawMyRole();drawFriends();drawC4Inbox();
 }
 function setAccount(user,token){
+  var prevKey=account&&account.user?keyOf(account.user):"";
   account={user:user||null,token:user?(token||""):""};
   if(account.user){
     store.set("static-token",account.token);store.set("static-user",JSON.stringify(account.user));
     store.set("static-lastid",account.user.name+"#"+account.user.tag);
   }else{store.set("static-token","");store.set("static-user","")}
+  if(prevKey!==(account.user?keyOf(account.user):""))closeAcctMenu();
   drawAccount();
   onAccountChange();
   if(onAcctHook)onAcctHook();
@@ -1794,7 +1767,7 @@ $("acct-btn").addEventListener("click",function(e){
   var m=$("acct-menu"),open=!m.classList.contains("open");
   m.classList.toggle("open",open);this.setAttribute("aria-expanded",String(open));if(open){loadSocial();loadC4()}
 });
-document.addEventListener("click",function(e){if(!e.target.closest(".acct-wrap"))closeAcctMenu()});
+document.addEventListener("click",function(e){if(!document.body.contains(e.target))return;if(!e.target.closest(".acct-wrap"))closeAcctMenu()});
 document.addEventListener("keydown",function(e){
   if(e.key!=="Escape")return;
   if(!aModal.hidden)closeAuth();else closeAcctMenu();
@@ -1838,10 +1811,11 @@ if(account.token){
 
 /* ================= Friends & presence ================= */
 var social={friends:[],incoming:[],outgoing:[],loaded:false,myRole:""};
-var noticeTimer=null,noticeShownId="";
 var socialTimer=null,pingTimer=null,presenceKey="";
 var ID_RE=/^\s*([A-Za-z0-9_]{2,16})\s*#\s*([A-Za-z0-9]{3,5})\s*$/;
 function keyOf(u){return (u.name+"#"+u.tag).toLowerCase()}
+function roleTag(r){if(!r)return null;var t=document.createElement("span");t.className="role-tag";t.textContent=r;return t}
+function drawMyRole(){var slot=$("am-role-slot");if(!slot)return;slot.innerHTML="";var t=roleTag(social&&social.myRole);if(t)slot.appendChild(t)}
 function mkBtn(t,c,f){var b=document.createElement("button");b.type="button";b.className=c;b.textContent=t;b.onclick=f;return b}
 function setBadge(n){
   var b=$("acct-btn"),s=b.querySelector(".badge");
@@ -1859,12 +1833,11 @@ function startPresence(){
   if(!k){stopPresence();return}
   if(k===presenceKey&&pingTimer)return;
   clearInterval(pingTimer);clearInterval(socialTimer);presenceKey=k;
-  ping();loadSocial();loadC4();loadNotice();
+  ping();loadSocial();loadC4();
   pingTimer=setInterval(ping,120000);
   socialTimer=setInterval(function(){if(!document.hidden){loadSocial();loadC4()}},15000);
-  clearInterval(noticeTimer);noticeTimer=setInterval(function(){if(!document.hidden)loadNotice()},5000);
 }
-function stopPresence(){clearInterval(pingTimer);clearInterval(socialTimer);clearInterval(noticeTimer);pingTimer=socialTimer=noticeTimer=null;presenceKey="";hideNotice()}
+function stopPresence(){clearInterval(pingTimer);clearInterval(socialTimer);pingTimer=socialTimer=null;presenceKey=""}
 function onAccountChange(){
   if(account.user)startPresence();
   else{stopPresence();social={friends:[],incoming:[],outgoing:[],loaded:false,myRole:""};c4State={invites:[],game:null};clearInterval(c4Timer)}
@@ -1881,7 +1854,7 @@ function loadSocial(){
   if(!account.token)return;
   api("/social").then(function(d){
     social.friends=d.friends||[];social.incoming=d.incoming||[];social.outgoing=d.outgoing||[];social.myRole=d.myRole||"";social.loaded=true;
-    drawAccount();
+    drawMyRole();
     drawFriends();drawC4Friends();setBadge(social.incoming.length+(c4State.invites||[]).length);
   }).catch(function(e){if(e&&e.status===401)setAccount(null)});
 }
@@ -1969,7 +1942,7 @@ function frRow(f,dot,status,cls){
   var n=document.createElement("span");n.className="fn";
   var line=document.createElement("span");line.className="name-line";
   var b=document.createElement("b");b.textContent=f.name;line.appendChild(b);
-  if(f.role){var rt=document.createElement("span");rt.className="role-tag";rt.textContent=f.role;line.appendChild(rt)}
+  var rt=roleTag(f.role);if(rt)line.appendChild(rt);
   var t=document.createElement("span");t.className="ft";t.textContent="#"+f.tag;
   n.appendChild(line);n.appendChild(t);
   if(status){var st=document.createElement("span");st.className="fs "+cls;st.textContent=status;n.appendChild(st)}
@@ -2005,23 +1978,6 @@ function drawFriends(){
     });
   }
 }
-
-/* ================= Owner administration ================= */
-var adminSelected=null;
-function buildAdminPanel(){
-  var root=$("admin-root");if(!root)return;
-  root.innerHTML='<div class="admin-shell"><div class="admin-top"><h2>PLAYER TOOLS</h2><span class="role-tag">OWNER</span></div><form class="admin-search" id="admin-search-form"><input id="admin-search-id" placeholder="Search account · Name#TAG" maxlength="24" autocomplete="off" required><button class="go sm" type="submit">Search</button></form><p id="admin-search-status" class="admin-status" aria-live="polite">Search for a player to see available actions.</p><div id="admin-user" class="admin-user" hidden><div class="admin-user-head"><strong id="admin-user-name"></strong><small id="admin-user-tag"></small><span id="admin-user-role" class="role-tag" hidden></span></div><div class="admin-actions"><div class="admin-action"><h3>PLAYER ROLE</h3><form id="admin-role-form"><input id="admin-role-value" placeholder="Role name (blank removes)" maxlength="24"><button class="go sm" type="submit">Save</button></form></div><div class="admin-action"><h3>SCREEN MESSAGE</h3><form id="admin-message-form"><input id="admin-msg-text" placeholder="Message to show at top" maxlength="180" required><select id="admin-msg-time" aria-label="Message duration"><option value="8">8s</option><option value="12" selected>12s</option><option value="20">20s</option><option value="30">30s</option><option value="60">60s</option></select><button class="go sm" type="submit">Send</button></form></div></div><p id="admin-action-status" class="admin-status" aria-live="polite"></p></div></div>';
-  $("admin-search-form").onsubmit=searchAdminUser;
-  $("admin-role-form").onsubmit=saveAdminRole;
-  $("admin-message-form").onsubmit=sendAdminMessage;
-}
-function adminStatus(id,msg,bad){var el=$(id);if(el){el.textContent=msg||"";el.classList.toggle("err",!!bad)}}
-function searchAdminUser(e){e.preventDefault();var raw=$("admin-search-id").value.match(ID_RE);if(!raw){adminStatus("admin-search-status","Enter a valid Name#TAG.",true);return}var btn=this.querySelector("button");btn.disabled=true;adminStatus("admin-search-status","Searching…");api("/admin/user?name="+encodeURIComponent(raw[1])+"&tag="+encodeURIComponent(raw[2])).then(function(d){adminSelected=d.user;$("admin-user-name").textContent=d.user.name;$("admin-user-tag").textContent="#"+d.user.tag;var role=$("admin-user-role");role.textContent=d.user.role||"No role";role.hidden=!d.user.role;$("admin-role-value").value=d.user.role||"";$("admin-user").hidden=false;adminStatus("admin-search-status","Player found.");adminStatus("admin-action-status","")}).catch(function(err){adminSelected=null;$("admin-user").hidden=true;adminStatus("admin-search-status",netMsg(err),true)}).then(function(){btn.disabled=false})}
-function saveAdminRole(e){e.preventDefault();if(!adminSelected)return;var role=$("admin-role-value").value.trim(),btn=this.querySelector("button");btn.disabled=true;api("/admin/role",{method:"POST",body:{name:adminSelected.name,tag:adminSelected.tag,role:role}}).then(function(d){adminSelected.role=d.role||"";var badge=$("admin-user-role");badge.textContent=d.role||"No role";badge.hidden=!d.role;adminStatus("admin-action-status",d.role?"Role updated.":"Role removed.");loadSocial()}).catch(function(err){adminStatus("admin-action-status",netMsg(err),true)}).then(function(){btn.disabled=false})}
-function sendAdminMessage(e){e.preventDefault();if(!adminSelected)return;var message=$("admin-msg-text").value.trim(),seconds=Number($("admin-msg-time").value),btn=this.querySelector("button");btn.disabled=true;api("/admin/message",{method:"POST",body:{name:adminSelected.name,tag:adminSelected.tag,message:message,seconds:seconds}}).then(function(){adminStatus("admin-action-status","Message sent to "+adminSelected.name+".");$("admin-msg-text").value=""}).catch(function(err){adminStatus("admin-action-status",netMsg(err),true)}).then(function(){btn.disabled=false})}
-function hideNotice(){var box=$("admin-notice");if(box)box.hidden=true;noticeShownId=""}
-function loadNotice(){if(!account.token)return;api("/notice").then(function(d){var n=d.notice,box=$("admin-notice");if(!n){hideNotice();return}if(noticeShownId===n.id)return;noticeShownId=n.id;$("admin-notice-text").textContent=n.message;box.hidden=false}).catch(function(){})}
-$("admin-notice-close").onclick=function(){var id=noticeShownId;hideNotice();if(id)api("/notice/dismiss",{method:"POST",body:{id:id}}).catch(function(){})};
 
 /* ================= Watch together (YouTube) ================= */
 var yp=null,ypReady=false,wt={role:"off",host:null,poll:null,beat:null,tm:null,vid:"",seen:0,hold:0,busy:false,lp:null};
