@@ -1162,7 +1162,6 @@ nav#cats button .ci{margin-right:8px;opacity:.85;font-size:.85em}
 .og-row>span,.og-row>b{flex:1;min-width:120px}
 #game-inbox{margin-top:12px}
 #game-inbox h4{color:var(--acc);font:700 .7rem "Orbitron",sans-serif;letter-spacing:.1em}
-.og-layout{display:grid}
 .c4-board{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
 .c4-cell{aspect-ratio:1;border:0;min-width:0;cursor:pointer}
 .c4-cell.v1{background:#ef4444}
@@ -1310,7 +1309,6 @@ nav#cats button .ci{margin-right:8px;opacity:.85;font-size:.85em}
 .pop small:nth-of-type(n+3){color:var(--acc2)}
 
 /* --- connect four --- */
-.og-layout{grid-template-columns:minmax(220px,300px) minmax(0,1fr);gap:22px;align-items:start}
 .og-match{
   padding:16px;
   border-radius:20px;
@@ -1416,48 +1414,80 @@ nav#cats button .ci{margin-right:8px;opacity:.85;font-size:.85em}
   .og-pl .disc{flex-basis:22px;width:22px;height:22px}
 }
 
-/* Connect Four: stack the friends list above the board on narrow screens */
-@media(max-width:700px){
-  .og-layout{grid-template-columns:1fr}
-}
 
-/* ---------- online games: shared match panel, move timer, Tic Tac Toe ---------- */
-.og-side{min-width:0}
+/* ---------- online games: Challenge dropdown, match panel, move timer, Tic Tac Toe ---------- */
+.og-wrap{max-width:560px}
+.og-banners{display:grid;gap:8px;margin:0 0 12px}
+.og-banners:empty{display:none}
+.og-banners .og-row{margin:0;border-color:var(--acc-dim);background:linear-gradient(90deg,hsla(var(--hue),calc(100% * var(--s)),55%,.14),transparent)}
+.og-bar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 12px}
+.og-pick{position:relative}
+.og-challenge{display:inline-flex;align-items:center;gap:10px}
+.og-challenge:disabled{opacity:.5;cursor:not-allowed}
+.og-challenge .car{font-size:.8em;transition:transform .2s}
+.og-challenge[aria-expanded="true"] .car{transform:rotate(180deg)}
+.og-menu{position:absolute;z-index:30;left:0;top:calc(100% + 8px);width:min(380px,calc(100vw - 32px));padding:10px;border-radius:16px;
+  border:1px solid hsla(var(--hue),calc(100% * var(--s)),58%,.55);
+  background:linear-gradient(180deg,hsl(calc(var(--hue) - 10),calc(40% * var(--s)),10%),hsl(calc(var(--hue) - 14),calc(45% * var(--s)),4%));
+  box-shadow:0 18px 50px rgba(0,0,0,.75),0 0 26px var(--glow);animation:ogmenu .16s ease-out}
+.og-menu[hidden]{display:none}
+@keyframes ogmenu{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:none}}
+.og-search{width:100%;box-sizing:border-box;padding:10px 12px 10px 36px;border-radius:12px;border:1px solid var(--line);color:var(--ink);font:inherit;font-size:.92rem;
+  background:rgba(0,0,0,.45) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23999' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='11' cy='11' r='7'/%3E%3Cpath d='M20 20l-3.5-3.5'/%3E%3C/svg%3E") no-repeat 12px center}
+.og-search:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px var(--glow)}
+.og-menu-list{margin-top:8px;max-height:min(300px,45vh);overflow-y:auto;overscroll-behavior:contain;scrollbar-width:thin;scrollbar-color:var(--acc-dim) transparent}
+.og-menu-list .og-row{margin:5px 0}
+.og-empty{padding:18px 8px;text-align:center;color:var(--mute);font-size:.86rem}
+.og-note{margin:0 0 12px}
+.og-note:empty{display:none}
+.og-match{max-width:560px}
 .og-timer{display:flex;align-items:center;gap:10px;max-width:520px;margin:0 0 12px}
 .og-timer[hidden]{display:none}
-.og-timer .bar{flex:1;height:7px;border-radius:99px;background:rgba(255,255,255,.09);overflow:hidden}
-.og-timer .bar i{display:block;height:100%;width:100%;border-radius:99px;background:linear-gradient(90deg,var(--acc-dim),var(--acc));box-shadow:0 0 10px var(--glow);transition:width .25s linear}
-.og-timer em{font:700 .62rem "Orbitron",sans-serif;font-style:normal;letter-spacing:.12em;color:var(--mute);white-space:nowrap;min-width:3.4em;text-align:right}
-.og-timer.low .bar i{background:linear-gradient(90deg,#a30018,#ff4d5e);box-shadow:0 0 12px rgba(255,77,94,.7)}
+.og-track{flex:1;height:7px;border-radius:99px;background:rgba(255,255,255,.09);overflow:hidden}
+.og-track i{display:block;height:100%;width:100%;border-radius:99px;background:linear-gradient(90deg,var(--acc-dim),var(--acc));box-shadow:0 0 10px var(--glow);transition:width .25s linear}
+.og-timer em{font:700 .62rem "Orbitron",sans-serif;font-style:normal;letter-spacing:.12em;color:var(--mute);white-space:nowrap;min-width:3.6em;text-align:right}
+.og-timer.low .og-track i{background:linear-gradient(90deg,#a30018,#ff4d5e);box-shadow:0 0 12px rgba(255,77,94,.7)}
 .og-timer.low em{color:#ff6b78}
-.og-timer.closing .bar i{background:rgba(255,255,255,.28);box-shadow:none}
+.og-timer.closing .og-track i{background:rgba(255,255,255,.28);box-shadow:none}
 .og-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
 .og-actions button[hidden]{display:none}
 .og-row .og-st.on{color:#38ff7e}
 .og-pl .sym{flex:0 0 28px;width:28px;height:28px;display:grid;place-items:center;border-radius:8px;border:1px solid currentColor;font:900 .85rem "Orbitron",sans-serif}
 .og-pl .sym.x{color:var(--acc);box-shadow:0 0 10px var(--glow)}
 .og-pl .sym.o{color:hsl(190,calc(95% * var(--s)),62%);box-shadow:0 0 10px hsla(190,calc(95% * var(--s)),55%,.5)}
+
+/* tic tac toe: neon # grid, marks centred in their square, strike line through the win */
 .ttt-stage{max-width:360px}
-.ttt-board{--oc:hsl(190,calc(95% * var(--s)),62%);--oglow:hsla(190,calc(95% * var(--s)),55%,.55);display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;padding:14px;border-radius:20px;
+.ttt-board{--p:16px;--lc:hsla(var(--hue),calc(100% * var(--s)),62%,.8);--oc:hsl(190,calc(95% * var(--s)),64%);--oglow:hsla(190,calc(95% * var(--s)),55%,.6);
+  position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:0;padding:var(--p);border-radius:22px;
   border:2px solid hsla(var(--hue),calc(100% * var(--s)),58%,.55);
-  background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 3px),linear-gradient(180deg,hsl(calc(var(--hue) - 12),calc(42% * var(--s)),6%),hsl(calc(var(--hue) - 15),calc(46% * var(--s)),2%));
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.018) 0 1px,transparent 1px 3px),radial-gradient(circle at 50% 40%,hsl(calc(var(--hue) - 10),calc(45% * var(--s)),8%),hsl(calc(var(--hue) - 15),calc(46% * var(--s)),2.5%));
   box-shadow:0 0 0 1px #000,0 0 30px hsla(var(--hue),calc(100% * var(--s)),55%,.32),0 22px 44px rgba(0,0,0,.6),inset 0 0 36px hsla(var(--hue),calc(100% * var(--s)),55%,.09)}
-.ttt-cell{position:relative;aspect-ratio:1;padding:0;border:0;border-radius:16px;cursor:pointer;transition:transform .15s,box-shadow .15s,opacity .2s;
-  background:linear-gradient(145deg,hsl(calc(var(--hue) - 8),calc(40% * var(--s)),13%),hsl(calc(var(--hue) - 12),calc(44% * var(--s)),6%));
-  box-shadow:inset 0 2px 0 rgba(255,255,255,.07),inset 0 -3px 8px rgba(0,0,0,.6),0 3px 0 rgba(0,0,0,.5)}
+.ttt-board::before{content:"";position:absolute;inset:var(--p);pointer-events:none;filter:drop-shadow(0 0 5px var(--glow));
+  background:linear-gradient(var(--lc),var(--lc)) 33.333% 0/3px 100% no-repeat,linear-gradient(var(--lc),var(--lc)) 66.666% 0/3px 100% no-repeat,
+             linear-gradient(var(--lc),var(--lc)) 0 33.333%/100% 3px no-repeat,linear-gradient(var(--lc),var(--lc)) 0 66.666%/100% 3px no-repeat}
+.ttt-cell{position:relative;z-index:1;aspect-ratio:1;padding:0;border:0;border-radius:16px;background:transparent;cursor:pointer;transition:background .18s}
 .ttt-cell:disabled{cursor:default;opacity:1}
-.ttt-cell:not(:disabled):hover{transform:translateY(-2px);box-shadow:inset 0 2px 0 rgba(255,255,255,.1),inset 0 -3px 8px rgba(0,0,0,.6),0 0 20px var(--glow)}
-.ttt-cell.last{box-shadow:inset 0 2px 0 rgba(255,255,255,.07),inset 0 -3px 8px rgba(0,0,0,.6),0 0 0 2px hsla(var(--hue),calc(100% * var(--s)),62%,.55)}
-.ttt-cell.win{z-index:1;animation:c4win 1s ease-in-out infinite alternate}
-.ttt-board.over .ttt-cell:not(.win){opacity:.5}
-.mk{position:absolute;inset:0;display:block}
-.mk.x::before,.mk.x::after,.me-x .ttt-cell:not(:disabled):hover .mk::before,.me-x .ttt-cell:not(:disabled):hover .mk::after{content:"";position:absolute;left:50%;top:15%;width:13%;height:70%;border-radius:99px;background:var(--acc);box-shadow:0 0 16px var(--glow);transform:translateX(-50%) rotate(45deg)}
-.mk.x::after,.me-x .ttt-cell:not(:disabled):hover .mk::after{transform:translateX(-50%) rotate(-45deg)}
-.mk.o::before,.me-o .ttt-cell:not(:disabled):hover .mk::before{content:"";position:absolute;inset:17%;border-radius:50%;border:clamp(7px,2.4vw,11px) solid var(--oc);box-shadow:0 0 16px var(--oglow),inset 0 0 12px var(--oglow)}
-.ttt-cell:not(:disabled):hover .mk:not(.x):not(.o){opacity:.35}
-.mk.pop{animation:tttpop .3s cubic-bezier(.3,1.6,.5,1)}
-@keyframes tttpop{from{transform:scale(.2);opacity:0}to{transform:none;opacity:1}}
-@media(max-width:520px){.ttt-board{gap:7px;padding:10px}}
+.ttt-cell:not(:disabled):hover{background:radial-gradient(circle,hsla(var(--hue),calc(100% * var(--s)),58%,.17),transparent 72%)}
+.mk{position:absolute;inset:0;display:block;pointer-events:none}
+.mk.x::before,.mk.x::after,.me-x .ttt-cell:not(:disabled):hover .mk::before,.me-x .ttt-cell:not(:disabled):hover .mk::after{content:"";position:absolute;left:50%;top:50%;width:11%;height:62%;border-radius:99px;
+  background:linear-gradient(180deg,hsl(var(--hue),calc(100% * var(--s)),74%),var(--acc));box-shadow:0 0 16px var(--glow),0 0 4px var(--acc);transform:translate(-50%,-50%) rotate(45deg)}
+.mk.x::after,.me-x .ttt-cell:not(:disabled):hover .mk::after{transform:translate(-50%,-50%) rotate(-45deg)}
+.mk.o::before,.me-o .ttt-cell:not(:disabled):hover .mk::before{content:"";position:absolute;left:50%;top:50%;width:60%;aspect-ratio:1;box-sizing:border-box;border-radius:50%;
+  border:clamp(6px,2.1vw,9px) solid var(--oc);box-shadow:0 0 16px var(--oglow),inset 0 0 12px var(--oglow);transform:translate(-50%,-50%)}
+.ttt-cell:not(:disabled):hover .mk:not(.x):not(.o){opacity:.38}
+.mk.mk-in{animation:mkIn .3s cubic-bezier(.3,1.5,.5,1)}
+@keyframes mkIn{from{transform:scale(.3);opacity:0}to{transform:none;opacity:1}}
+.ttt-cell.win .mk{animation:mkGlow 1s ease-in-out infinite alternate}
+@keyframes mkGlow{from{filter:brightness(1)}to{filter:brightness(1.45) drop-shadow(0 0 8px #fff)}}
+.ttt-board.over .ttt-cell:not(.win) .mk{opacity:.32}
+.ttt-strike{position:absolute;z-index:2;height:8px;margin-top:-4px;border-radius:99px;pointer-events:none;transform-origin:0 50%;
+  background:linear-gradient(90deg,#fff,hsl(var(--hue),calc(100% * var(--s)),72%));box-shadow:0 0 14px #fff,0 0 28px var(--acc);
+  transform:rotate(var(--a)) scaleX(0);animation:tttStrike .45s .12s ease-out forwards}
+.ttt-strike.o{background:linear-gradient(90deg,#fff,var(--oc));box-shadow:0 0 14px #fff,0 0 28px var(--oglow)}
+.ttt-strike.instant{animation:none;transform:rotate(var(--a)) scaleX(1)}
+@keyframes tttStrike{to{transform:rotate(var(--a)) scaleX(1)}}
+@media(max-width:520px){.ttt-board{--p:12px}}
 </style>
 </head>
 <body>
@@ -1796,7 +1826,8 @@ function show(name){
   document.querySelectorAll("main section").forEach(function(s){s.hidden=s.id!==name});
   if(name==="home")drawHome();
   if(name==="mines"||name==="blocks")drawLB(name);
-  if(name==="connect4"||name==="tictactoe"){drawGameFriends();loadGames()}
+  closeGameMenu();
+  if(name==="connect4"||name==="tictactoe"){drawGameFriends();loadGames();restrike()}
   store.set("static-tab",name);store.set("static-last-"+cat.id,name);
 }
 
@@ -2778,7 +2809,7 @@ function loadSocial(){
   }).catch(function(e){if(e&&e.status===401)setAccount(null)});
 }
 /* ---------- online 1v1 games (Connect Four + Tic Tac Toe) ---------- */
-var gameDeadline=0,gameSigs={},gameLast={},gamePrev={},gameFetchedFor="";
+var gameDeadline=0,gameSigs={},gameLast={},gamePrev={},gameFetchedFor="",gameMenu="",c4HoverCol=-1;
 function gameOf(type){var g=gameState.game;return g&&g.type===type?g:null}
 function gameLabel(type){return (GAME_DEFS[type]||{label:type}).label}
 function gameMessage(type,t,err){var n=$("og-note-"+type);if(n){n.textContent=t||"";n.classList.toggle("err",!!err)}}
@@ -2797,7 +2828,7 @@ function respondInvite(inv,action,btns){
   btns.forEach(function(b){b.disabled=true});
   api("/games/respond",{method:"POST",body:{id:inv.id,action:action}}).then(function(){
     loadGames();if(action==="accept")show((GAME_DEFS[inv.type]||GAME_DEFS.c4).tab);
-  }).catch(function(e){partyMessage(netMsg(e),true);gameMessage(inv.type,netMsg(e),true);loadGames()});
+  }).catch(function(e){btns.forEach(function(b){b.disabled=false});partyMessage(netMsg(e),true);gameMessage(inv.type,netMsg(e),true);loadGames()});
 }
 function inviteRow(inv){
   var row=document.createElement("div");row.className="og-row";
@@ -2819,41 +2850,90 @@ function drawGameInbox(){
 function challengeFriend(type,f,button){
   button.disabled=true;
   api("/games/challenge",{method:"POST",body:{type:type,name:f.name,tag:f.tag}})
-    .then(function(){gameMessage(type,"Invite sent to "+f.name+"#"+f.tag+". It expires in 2 minutes.");loadGames()})
+    .then(function(){gameMessage(type,"Invite sent to "+f.name+"#"+f.tag+". It expires in 2 minutes.");closeGameMenu();loadGames()})
     .catch(function(e){gameMessage(type,netMsg(e),true);button.disabled=false});
 }
 function cancelInvite(type,inv,button){
   button.disabled=true;
   api("/games/cancel",{method:"POST",body:{id:inv.id}})
     .then(function(){gameMessage(type,"Invite cancelled.");loadGames()})
-    .catch(function(e){gameMessage(type,netMsg(e),true);loadGames()});
+    .catch(function(e){button.disabled=false;gameMessage(type,netMsg(e),true);loadGames()});
 }
+function sentFor(type,f){return gameState.sent.filter(function(i){return i.type===type&&keyOf(i.to)===keyOf(f)})[0]}
+function sentRow(type,inv){
+  var row=document.createElement("div");row.className="og-row sent";
+  var who=document.createElement("span");who.className="og-who";
+  var nl=document.createElement("span");nl.className="nl";
+  var nm=document.createElement("b");nm.textContent="Waiting for "+inv.to.name+"#"+inv.to.tag+"…";nl.appendChild(nm);
+  var st=document.createElement("span");st.className="og-st";st.textContent="INVITE SENT";
+  who.appendChild(nl);who.appendChild(st);
+  var btn=mkBtn("Cancel","ghost sm",function(){cancelInvite(type,inv,btn)});
+  row.appendChild(who);row.appendChild(btn);return row;
+}
+function fillIfChanged(el,sig,build){if(!el||el.dataset.sig===sig)return;el.dataset.sig=sig;el.innerHTML="";build(el)}
+function friendMatches(f,q){q=q.trim().toLowerCase().replace(/^#/,"");return !q||(f.name+"#"+f.tag).toLowerCase().indexOf(q)>=0}
+/* the scrollable, searchable friends list inside the "Challenge a friend" dropdown */
+function drawFriendList(type){
+  var list=$("og-list-"+type);if(!list)return;
+  var q=($("og-search-"+type)||{}).value||"";
+  var friends=account.user?social.friends.filter(function(f){return friendMatches(f,q)}):[];
+  friends.sort(function(a,b){return ((b.online?1:0)-(a.online?1:0))||a.name.toLowerCase().localeCompare(b.name.toLowerCase())});
+  var sig=[q,account.user?1:0,social.friends.length].concat(friends.map(function(f){return keyOf(f)+(f.online?1:0)+(sentFor(type,f)?"s":"")+(f.role||"")})).join("|");
+  if(list.dataset.sig===sig)return;
+  list.dataset.sig=sig;
+  var keep=list.scrollTop;list.innerHTML="";
+  function note(t){var n=document.createElement("div");n.className="og-empty";n.textContent=t;list.appendChild(n)}
+  if(!account.user)note("Sign in to challenge your friends.");
+  else if(!social.friends.length)note("You have no friends yet. Add one from your account menu.");
+  else if(!friends.length)note("No friends match “"+q.trim()+"”.");
+  friends.forEach(function(f){
+    var sent=sentFor(type,f);
+    var row=document.createElement("div");row.className="og-row";row.setAttribute("role","option");
+    var av=document.createElement("span");makeAvatar(f,av);
+    var w=document.createElement("span");w.className="avwrap";w.appendChild(av);
+    var d=document.createElement("span");d.className="pdot"+(f.online?" on":"");w.appendChild(d);
+    var who=document.createElement("span");who.className="og-who";
+    var nl=document.createElement("span");nl.className="nl";
+    var nm=document.createElement("b");nm.textContent=f.name+"#"+f.tag;nl.appendChild(nm);
+    var rt=roleTag(f.role);if(rt)nl.appendChild(rt);
+    var st=document.createElement("span");st.className="og-st"+(f.online||sent?" on":"");st.textContent=sent?"INVITE SENT":(f.online?"ONLINE":"OFFLINE");
+    who.appendChild(nl);who.appendChild(st);
+    var btn=sent?mkBtn("Cancel","ghost sm",function(){cancelInvite(type,sent,btn)}):mkBtn("Invite","go sm",function(){challengeFriend(type,f,btn)});
+    row.appendChild(w);row.appendChild(who);row.appendChild(btn);list.appendChild(row);
+  });
+  list.scrollTop=keep;
+}
+function closeGameMenu(){
+  gameMenu="";
+  Object.keys(GAME_DEFS).forEach(function(t){
+    var m=$("og-menu-"+t),b=$("og-pick-btn-"+t);
+    if(m)m.hidden=true;if(b)b.setAttribute("aria-expanded","false");
+  });
+}
+function openGameMenu(type){
+  closeGameMenu();gameMenu=type;
+  var m=$("og-menu-"+type),b=$("og-pick-btn-"+type),s=$("og-search-"+type);
+  if(!m||!b)return;
+  s.value="";m.hidden=false;b.setAttribute("aria-expanded","true");
+  if(account.token)loadSocial();   /* fresh online status */
+  drawFriendList(type);
+  if(!(window.matchMedia&&matchMedia("(pointer:coarse)").matches))s.focus();
+}
+/* invite banners above the match, the waiting banner, the dropdown list and the Challenge button */
 function drawGameFriends(){
   Object.keys(GAME_DEFS).forEach(function(type){
-    var ib=$("og-inv-"+type);
-    if(ib){
-      ib.innerHTML="";
-      var mine=account.user?gameState.invites.filter(function(i){return i.type===type}):[];
-      if(mine.length){var h=document.createElement("h3");h.className="sub";h.textContent="INVITES";ib.appendChild(h);mine.forEach(function(inv){ib.appendChild(inviteRow(inv))})}
+    var inc=account.user?gameState.invites.filter(function(i){return i.type===type}):[];
+    fillIfChanged($("og-inv-"+type),inc.map(function(i){return i.id}).join(),function(box){inc.forEach(function(inv){box.appendChild(inviteRow(inv))})});
+    var out=account.user?gameState.sent.filter(function(i){return i.type===type}):[];
+    fillIfChanged($("og-sent-"+type),out.map(function(i){return i.id}).join(),function(box){out.forEach(function(inv){box.appendChild(sentRow(type,inv))})});
+    drawFriendList(type);
+    var btn=$("og-pick-btn-"+type);
+    if(btn){
+      var busy=!!(gameState.game&&gameState.game.status==="playing");
+      btn.disabled=!account.user||busy;
+      btn.title=!account.user?"Sign in to challenge friends":(busy?"Finish your current match first":"");
+      if(btn.disabled&&gameMenu===type)closeGameMenu();
     }
-    var box=$("og-friends-"+type);if(!box)return;box.innerHTML="";
-    if(!account.user){box.textContent="Sign in and add friends to send challenges.";return}
-    if(!social.friends.length){box.textContent="Add a friend from your account menu first.";return}
-    social.friends.slice().sort(function(a,b){return ((b.online?1:0)-(a.online?1:0))||a.name.toLowerCase().localeCompare(b.name.toLowerCase())}).forEach(function(f){
-      var sent=gameState.sent.filter(function(i){return i.type===type&&keyOf(i.to)===keyOf(f)})[0];
-      var row=document.createElement("div");row.className="og-row";
-      var av=document.createElement("span");makeAvatar(f,av);
-      var w=document.createElement("span");w.className="avwrap";w.appendChild(av);
-      var d=document.createElement("span");d.className="pdot"+(f.online?" on":"");w.appendChild(d);
-      var who=document.createElement("span");who.className="og-who";
-      var nl=document.createElement("span");nl.className="nl";
-      var nm=document.createElement("b");nm.textContent=f.name+"#"+f.tag;nl.appendChild(nm);
-      var rt=roleTag(f.role);if(rt)nl.appendChild(rt);
-      var st=document.createElement("span");st.className="og-st"+(f.online||sent?" on":"");st.textContent=sent?"INVITE SENT":(f.online?"ONLINE":"OFFLINE");
-      who.appendChild(nl);who.appendChild(st);
-      var btn=sent?mkBtn("Cancel","ghost sm",function(){cancelInvite(type,sent,btn)}):mkBtn("Challenge","go sm",function(){challengeFriend(type,f,btn)});
-      row.appendChild(w);row.appendChild(who);row.appendChild(btn);box.appendChild(row);
-    });
   });
 }
 
@@ -2908,6 +2988,7 @@ function playMove(type,id,extra){
   api("/games/move",{method:"POST",body:body}).then(function(){gameMessage(type,"");loadGames()}).catch(function(e){gameMessage(type,netMsg(e),true);loadGames()});
 }
 function c4Hover(col){
+  c4HoverCol=col;
   var g=gameOf("c4"),drop=$("c4-drop"),board=$("c4-board");if(!drop||!board)return;
   var ok=col>=0&&g&&g.status==="playing"&&account.user&&g.turn===keyOf(account.user)&&g.board[0][col]===0;
   [].forEach.call(drop.children,function(sp,i){sp.classList.toggle("on",!!ok&&i===col)});
@@ -2918,15 +2999,29 @@ function buildGameUI(type){
   var stage=type==="c4"
     ?'<div class="c4-stage"><div class="c4-drop" id="c4-drop" aria-hidden="true"></div><div id="c4-board" class="c4-board" role="grid" aria-label="Connect Four board"></div></div>'
     :'<div class="ttt-stage"><div id="ttt-board" class="ttt-board" role="grid" aria-label="Tic Tac Toe board"></div></div>';
-  root.innerHTML='<div class="og-layout">'
-    +'<div class="og-side"><div id="og-inv-'+type+'"></div><h3 class="sub">YOUR FRIENDS</h3><div id="og-friends-'+type+'"></div></div>'
-    +'<div class="og-match"><p id="og-opp-'+type+'" class="note">No active match</p>'
+  root.innerHTML='<div class="og-wrap">'
+    +'<div class="og-banners" id="og-inv-'+type+'"></div>'
+    +'<div class="og-bar"><div class="og-pick" id="og-pick-'+type+'">'
+    +'<button type="button" class="go og-challenge" id="og-pick-btn-'+type+'" aria-haspopup="listbox" aria-expanded="false"><span>⚔ Challenge a friend</span><span class="car" aria-hidden="true">▾</span></button>'
+    +'<div class="og-menu" id="og-menu-'+type+'" hidden>'
+    +'<input type="search" class="og-search" id="og-search-'+type+'" placeholder="Search your friends…" autocomplete="off" spellcheck="false" aria-label="Search your friends">'
+    +'<div class="og-menu-list" id="og-list-'+type+'" role="listbox" aria-label="Your friends"></div></div></div></div>'
+    +'<div class="og-banners" id="og-sent-'+type+'"></div>'
+    +'<p id="og-note-'+type+'" class="note og-note" aria-live="polite"></p>'
+    +'<div class="og-match">'
     +'<div class="og-players" id="og-players-'+type+'" hidden></div>'
     +'<p id="og-status-'+type+'" class="og-status" aria-live="polite"></p>'
-    +'<div class="og-timer" id="og-timer-'+type+'" hidden><span class="bar"><i></i></span><em></em></div>'
+    +'<div class="og-timer" id="og-timer-'+type+'" hidden><span class="og-track"><i></i></span><em></em></div>'
     +stage
     +'<div class="og-actions"><button type="button" id="og-rematch-'+type+'" class="go" hidden>Rematch</button><button type="button" id="og-leave-'+type+'" class="ghost" hidden>Resign</button></div>'
-    +'<p id="og-note-'+type+'" class="note" aria-live="polite"></p></div></div>';
+    +'</div></div>';
+  $("og-pick-btn-"+type).onclick=function(){if(gameMenu===type)closeGameMenu();else openGameMenu(type)};
+  $("og-search-"+type).oninput=function(){drawFriendList(type)};
+  $("og-search-"+type).onkeydown=function(e){
+    if(e.key!=="Enter")return;
+    var first=$("og-list-"+type).querySelector(".og-row .go");
+    if(first&&!first.disabled)first.click();
+  };
   if(type==="c4"){
     var drop=$("c4-drop"),board=$("c4-board");
     for(var i=0;i<7;i++){var sp=document.createElement("span");sp.appendChild(document.createElement("i"));drop.appendChild(sp)}
@@ -2945,7 +3040,7 @@ function buildGameUI(type){
   drawGame(type);
 }
 function emptyBoard(type,board){
-  board.innerHTML="";
+  board.innerHTML="";board._win=null;
   var n=type==="c4"?42:9;
   for(var i=0;i<n;i++){
     var e=document.createElement("button");e.type="button";e.className=type==="c4"?"c4-cell":"ttt-cell";e.disabled=true;e.setAttribute("aria-label","Empty");
@@ -2974,14 +3069,30 @@ function renderTTT(g,board,win,fresh,lastIdx,myTurn,mine){
     var v=g.board[i];
     var cell=document.createElement("button");cell.type="button";
     cell.className="ttt-cell"+(win[i]?" win":"")+(v&&i===lastIdx?" last":"");
-    var mk=document.createElement("span");mk.className="mk"+(v===1?" x":v===2?" o":"")+(fresh.indexOf(i)>=0?" pop":"");
+    var mk=document.createElement("span");mk.className="mk"+(v===1?" x":v===2?" o":"")+(fresh.indexOf(i)>=0?" mk-in":"");
     cell.appendChild(mk);
     cell.setAttribute("aria-label","Square "+(i+1)+(v?", "+(v===1?"X":"O"):", empty"));
     cell.disabled=!myTurn||v!==0;
     cell.onclick=(function(n){return function(){playMove("ttt",g.id,{cell:n})}})(i);
     board.appendChild(cell);
   }
+  board._win=Object.keys(win).map(Number).sort(function(a,b){return a-b});
+  board._winner=g.winner===g.players[0].k?1:2;
+  if(board._win.length)tttStrike(board,false);
 }
+/* a glowing line through the three winning squares */
+function tttStrike(board,instant){
+  var old=board.querySelector(".ttt-strike");if(old)old.remove();
+  var w=board._win;if(!w||w.length<3)return;
+  var a=board.children[w[0]],b=board.children[w[w.length-1]];if(!a||!b||!a.offsetWidth)return;
+  var ax=a.offsetLeft+a.offsetWidth/2,ay=a.offsetTop+a.offsetHeight/2,bx=b.offsetLeft+b.offsetWidth/2,by=b.offsetTop+b.offsetHeight/2;
+  var ang=Math.atan2(by-ay,bx-ax),len=Math.sqrt((bx-ax)*(bx-ax)+(by-ay)*(by-ay)),ext=a.offsetWidth*0.34;
+  var el=document.createElement("div");el.className="ttt-strike"+(board._winner===2?" o":"")+(instant?" instant":"");
+  el.style.left=(ax-Math.cos(ang)*ext)+"px";el.style.top=(ay-Math.sin(ang)*ext)+"px";
+  el.style.width=(len+2*ext)+"px";el.style.setProperty("--a",ang+"rad");
+  board.appendChild(el);
+}
+function restrike(){var b=$("ttt-board");if(b&&b._win&&b._win.length)tttStrike(b,true)}
 function drawGames(){Object.keys(GAME_DEFS).forEach(drawGame)}
 function drawGame(type){
   var board=$(type+"-board");if(!board)return;
@@ -2993,7 +3104,6 @@ function drawGame(type){
   gameSigs[type]=sig;
   var st=$("og-status-"+type),rm=$("og-rematch-"+type),lv=$("og-leave-"+type),tm=$("og-timer-"+type);
   gamePlayers(type,g,mine);
-  $("og-opp-"+type).hidden=!!g;
   if(!g){
     st.className="og-status";
     st.textContent=!account.user?"Sign in to play with a friend.":(elsewhere&&elsewhere.status==="playing"?"You're in a "+gameLabel(elsewhere.type)+" match right now.":"Challenge a friend to start a private match.");
@@ -3014,7 +3124,7 @@ function drawGame(type){
   st.textContent=gameStatusText(g,mine);
   st.className="og-status"+(myTurn?" you":"")+(iWon?" win":"")+(over&&!iWon&&g.status!=="draw"?" lose":"");
   board.innerHTML="";
-  if(type==="c4")renderC4(g,board,win,fresh,last.idx,myTurn,mine);else renderTTT(g,board,win,fresh,last.idx,myTurn,mine);
+  if(type==="c4"){renderC4(g,board,win,fresh,last.idx,myTurn,mine);c4Hover(c4HoverCol)}else renderTTT(g,board,win,fresh,last.idx,myTurn,mine);
   var wants=g.rematch||[];
   rm.hidden=!over;rm.disabled=wants.indexOf(mine)>=0;
   rm.textContent=wants.indexOf(mine)>=0?"Waiting for rematch…":(wants.length?"Accept rematch":"Rematch");
@@ -3207,6 +3317,16 @@ setInterval(function(){
   if(open)loadGames();
 },2500);
 setInterval(gameTick,250);
+document.addEventListener("click",function(e){
+  if(!gameMenu)return;
+  var wrap=$("og-pick-"+gameMenu),path=e.composedPath?e.composedPath():[];
+  if(wrap&&path.indexOf(wrap)>=0)return;
+  closeGameMenu();
+});
+document.addEventListener("keydown",function(e){
+  if(e.key==="Escape"&&gameMenu){var t=gameMenu;closeGameMenu();var b=$("og-pick-btn-"+t);if(b)b.focus()}
+});
+window.addEventListener("resize",restrike);
 
 window.addEventListener("pagehide",function(){
   if(bb&&!bb.saved&&bb.score>0&&account.token){bb.saved=true;lbRecord("blocks","",bb.score,true)}
